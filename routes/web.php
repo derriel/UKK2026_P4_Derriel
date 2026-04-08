@@ -1,10 +1,15 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 
 // dashboard pages
+Route::middleware('auth')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+});
 Route::get('/', function () {
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
     return view('pages.auth.signin', ['title' => 'Login']);
 })->name('login');
 
@@ -44,19 +49,19 @@ Route::get('/line-chart', function () {
     return view('pages.chart.line-chart', ['title' => 'Line Chart']);
 })->name('line-chart');
 
-Route::get('/bar-chart', function () {
-    return view('pages.chart.bar-chart', ['title' => 'Bar Chart']);
-})->name('bar-chart');
+Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->name('login.post');
+Route::post('/signup', [App\Http\Controllers\AuthController::class, 'register'])->name('signup.post');
+Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->name('logout');
 
 
 // authentication pages
-Route::get('/signin', function () {
-    return view('pages.auth.signin', ['title' => 'Sign In']);
-})->name('signin');
+Route::get('/login', function () {
+    return view('pages.auth.signin', ['title' => 'Login']);
+})->name('login');
 
-Route::get('/signup', function () {
-    return view('pages.auth.signup', ['title' => 'Sign Up']);
-})->name('signup');
+Route::get('/register', function () {
+    return view('pages.auth.signup', ['title' => 'Register']);
+})->name('register');
 
 // ui elements pages
 Route::get('/alerts', function () {

@@ -52,7 +52,17 @@
                                 <span class="bg-white p-2 text-gray-400 sm:px-5 sm:py-2 dark:bg-gray-900">Or</span>
                             </div>
                         </div>
-                        <form>
+                        <form method="POST" action="{{ route('signup.post') }}">
+                            @csrf
+                            @if ($errors->any())
+                                <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                             <div class="space-y-5">
                                 <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                                     <!-- First Name -->
@@ -88,7 +98,7 @@
                                         Password<span class="text-error-500">*</span>
                                     </label>
                                     <div x-data="{ showPassword: false }" class="relative">
-                                        <input :type="showPassword ? 'text' : 'password'" placeholder="Enter your password"
+                                        <input :type="showPassword ? 'text' : 'password'" name="password" placeholder="Enter your password"
                                             class="dark:bg-dark-900 shadow-theme-xs focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pr-11 pl-4 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30" />
                                         <span @click="showPassword = !showPassword"
                                             class="absolute top-1/2 right-4 z-30 -translate-y-1/2 cursor-pointer text-gray-500 dark:text-gray-400">
@@ -143,7 +153,7 @@
                         <div class="mt-5">
                             <p class="text-center text-sm font-normal text-gray-700 sm:text-start dark:text-gray-400">
                                 Already have an account?
-                                <a href="/signin" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">Sign In</a>
+                                <a href="/login" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">Sign In</a>
                             </p>
                         </div>
                     </div>
