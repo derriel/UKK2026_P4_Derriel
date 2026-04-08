@@ -44,6 +44,10 @@ document.addEventListener('DOMContentLoaded', () => {
         import('./components/chart/chart-13').then(module => module.initChartThirteen());
     }
 
+    if (document.querySelector('#topBooksChart')) {
+        import('./components/chart/chart-top-books').then(module => module.initChartTopBooks());
+    }
+
     // Calendar init
     if (document.querySelector('#calendar')) {
         import('./components/calendar-init').then(module => module.calendarInit());
