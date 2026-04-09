@@ -43,9 +43,13 @@ Route::get('/login', function () {
     return view('pages.auth.signin', ['title' => 'Login']);
 })->name('login');
 
-Route::get('/register', function () {
+Route::get('/signup', function () {
     return view('pages.auth.signup', ['title' => 'Register']);
-})->name('register');
+})->name('signup');
+
+Route::get('/register', function () {
+    return redirect()->route('signup');
+});
 
 // Password reset routes
 Route::get('/forgot-password', [App\Http\Controllers\AuthController::class, 'showForgotPasswordForm'])->name('password.request');
