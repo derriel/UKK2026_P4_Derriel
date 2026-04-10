@@ -1,11 +1,14 @@
 <?php
 
+// Namespace untuk seeder database
 namespace Database\Seeders;
 
+// Import model dan class yang digunakan
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+// Class utama untuk seeding database
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -13,34 +16,35 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Memanggil seeder lainnya untuk mengisi data awal
         $this->call([
-            RoleSeeder::class,
-            BookSeeder::class,
-            MemberSeeder::class,
+            RoleSeeder::class,    // Seeder untuk tabel roles
+            BookSeeder::class,    // Seeder untuk tabel books
+            MemberSeeder::class,  // Seeder untuk tabel members
         ]);
 
-        // Create admin user with role
+        // Membuat user admin dengan role admin
         User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@perpustakaan.com',
-            'password' => bcrypt('password123'),
-            'role_id' => 1, // admin role
+            'password' => bcrypt('password123'), // Password di-hash menggunakan bcrypt
+            'role_id' => 1, // ID role admin
         ]);
 
-        // Create librarian user
+        // Membuat user pustakawan dengan role librarian
         User::factory()->create([
             'name' => 'Librarian User',
             'email' => 'librarian@perpustakaan.com',
             'password' => bcrypt('password123'),
-            'role_id' => 2, // librarian role
+            'role_id' => 2, // ID role librarian
         ]);
 
-        // Create regular member user
+        // Membuat user anggota biasa dengan role member
         User::factory()->create([
             'name' => 'Member User',
             'email' => 'member@perpustakaan.com',
             'password' => bcrypt('password123'),
-            'role_id' => 3, // member role
+            'role_id' => 3, // ID role member
         ]);
     }
 }

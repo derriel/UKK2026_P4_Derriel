@@ -1,32 +1,38 @@
 <?php
 
+// Namespace untuk model
 namespace App\Models;
 
+// Import model base
 use Illuminate\Database\Eloquent\Model;
 
+// Model Borrowing yang mewakili tabel borrowings di database
 class Borrowing extends Model
 {
+    // Atribut yang dapat diisi secara massal
     protected $fillable = [
-        'user_id',
-        'book_id',
-        'role_id',
-        'borrow_date',
-        'due_date',
-        'return_date',
-        'returned_at',
-        'status',
-        'notes',
+        'user_id',     // ID pengguna yang meminjam
+        'book_id',     // ID buku yang dipinjam
+        'role_id',     // ID role pengguna
+        'borrow_date', // Tanggal peminjaman
+        'due_date',    // Tanggal jatuh tempo
+        'return_date', // Tanggal pengembalian (direncanakan)
+        'returned_at', // Tanggal aktual pengembalian
+        'status',      // Status peminjaman (misal: borrowed, returned)
+        'notes',       // Catatan tambahan
     ];
 
+    // Cast atribut ke tipe data tertentu
     protected $casts = [
-        'borrow_date' => 'date',
-        'due_date' => 'date',
-        'return_date' => 'date',
-        'returned_at' => 'datetime',
+        'borrow_date' => 'date',     // Cast ke objek date
+        'due_date' => 'date',        // Cast ke objek date
+        'return_date' => 'date',     // Cast ke objek date
+        'returned_at' => 'datetime', // Cast ke objek datetime
     ];
 
     /**
-     * Get the user that owns the borrowing.
+     * Mendapatkan user yang melakukan peminjaman.
+     * Relasi belongsTo ke model User.
      */
     public function user()
     {
@@ -34,7 +40,8 @@ class Borrowing extends Model
     }
 
     /**
-     * Get the book that is borrowed.
+     * Mendapatkan buku yang dipinjam.
+     * Relasi belongsTo ke model Book.
      */
     public function book()
     {
@@ -42,7 +49,8 @@ class Borrowing extends Model
     }
 
     /**
-     * Get the role associated with the borrowing.
+     * Mendapatkan role yang terkait dengan peminjaman.
+     * Relasi belongsTo ke model Role.
      */
     public function role()
     {

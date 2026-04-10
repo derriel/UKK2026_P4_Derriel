@@ -1,10 +1,13 @@
 <?php
 
+// Namespace untuk seeder database
 namespace Database\Seeders;
 
+// Import class yang digunakan
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+// Class seeder untuk mengisi data tabel members
 class MemberSeeder extends Seeder
 {
     /**
@@ -12,20 +15,23 @@ class MemberSeeder extends Seeder
      */
     public function run(): void
     {
+        // Array data anggota yang akan di-insert ke tabel members
         $members = [
             [
-                'member_number' => 'MEM001',
-                'name' => 'Ahmad Rahman',
-                'email' => 'ahmad@example.com',
-                'phone' => '081234567890',
-                'address' => 'Jl. Sudirman No. 123, Jakarta',
-                'birth_date' => '1995-05-15',
-                'gender' => 'male',
-                'join_date' => '2024-01-15',
-                'status' => 'active'
+                'member_number' => 'MEM001',                    // Nomor anggota unik
+                'identity_number' => '3273081203000001',        // Nomor identitas
+                'name' => 'Ahmad Rahman',                       // Nama lengkap anggota
+                'email' => 'ahmad@example.com',                 // Email anggota
+                'phone' => '081234567890',                      // Nomor telepon
+                'address' => 'Jl. Sudirman No. 123, Jakarta',   // Alamat lengkap
+                'birth_date' => '1995-05-15',                  // Tanggal lahir
+                'gender' => 'male',                            // Jenis kelamin
+                'join_date' => '2024-01-15',                   // Tanggal bergabung
+                'status' => 'active'                           // Status keanggotaan
             ],
             [
                 'member_number' => 'MEM002',
+                'identity_number' => '3275022404000002',
                 'name' => 'Siti Nurhaliza',
                 'email' => 'siti@example.com',
                 'phone' => '081987654321',
@@ -37,6 +43,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_number' => 'MEM003',
+                'identity_number' => '3272051705000003',
                 'name' => 'Budi Santoso',
                 'email' => 'budi@example.com',
                 'phone' => '081345678901',
@@ -48,6 +55,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_number' => 'MEM004',
+                'identity_number' => '3271061806000004',
                 'name' => 'Maya Sari',
                 'email' => 'maya@example.com',
                 'phone' => '081456789012',
@@ -59,6 +67,7 @@ class MemberSeeder extends Seeder
             ],
             [
                 'member_number' => 'MEM005',
+                'identity_number' => '3274073007000005',
                 'name' => 'Rudi Hartono',
                 'email' => 'rudi@example.com',
                 'phone' => '081567890123',
@@ -66,10 +75,11 @@ class MemberSeeder extends Seeder
                 'birth_date' => '1990-07-30',
                 'gender' => 'male',
                 'join_date' => '2024-02-28',
-                'status' => 'inactive'
+                'status' => 'inactive'  // Status tidak aktif
             ]
         ];
 
+        // Loop untuk insert setiap anggota ke database
         foreach ($members as $member) {
             \DB::table('members')->insert($member);
         }

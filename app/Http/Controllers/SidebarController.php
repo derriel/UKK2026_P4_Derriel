@@ -1,16 +1,21 @@
 <?php
 
+// Namespace untuk controller
 namespace App\Http\Controllers;
 
+// Import request
 use Illuminate\Http\Request;
 
+// Controller untuk menangani data sidebar/menu
 class SidebarController extends Controller
 {
+    // Fungsi untuk mendapatkan data menu sidebar
     public function getMenuData()
     {
+        // Array data menu yang dikelompokkan
         $menuGroups = [
             [
-                'title' => 'Menu',
+                'title' => 'Menu', // Judul grup menu utama
                 'items' => [
                     [
                         'icon' => 'grid-icon',
@@ -106,7 +111,7 @@ class SidebarController extends Controller
                 ],
             ],
             [
-                'title' => 'Support',
+                'title' => 'Support', // Grup menu support
                 'items' => [
                     [
                         'icon' => 'chat-icon',
@@ -133,7 +138,7 @@ class SidebarController extends Controller
                 ],
             ],
             [
-                'title' => 'Others',
+                'title' => 'Others', // Grup menu lainnya
                 'items' => [
                     [
                         'icon' => 'pie-chart-icon',
@@ -186,6 +191,7 @@ class SidebarController extends Controller
             ],
         ];
 
+        // Return view sidebar dengan data menu
         return view('components.sidebar', compact('menuGroups'));
     }
 }

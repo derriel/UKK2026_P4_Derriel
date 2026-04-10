@@ -1,18 +1,23 @@
 <?php
 
+// Namespace untuk model
 namespace App\Models;
 
+// Import model base
 use Illuminate\Database\Eloquent\Model;
 
+// Model Role yang mewakili tabel roles di database
 class Role extends Model
 {
+    // Atribut yang dapat diisi secara massal
     protected $fillable = [
-        'name',
-        'description',
+        'name',        // Nama role (misal: admin, user)
+        'description', // Deskripsi role
     ];
 
     /**
-     * Get the users for the role.
+     * Mendapatkan users yang memiliki role ini.
+     * Relasi hasMany ke model User.
      */
     public function users()
     {

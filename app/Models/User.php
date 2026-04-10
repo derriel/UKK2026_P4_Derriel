@@ -1,57 +1,74 @@
 <?php
 
+// Namespace untuk model
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+// Import trait dan class yang diperlukan
+// use Illuminate\Contracts\Auth\MustVerifyEmail; // Tidak digunakan
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+// Model User yang mewakili tabel users di database
 class User extends Authenticatable
 {
+    // Menggunakan trait HasFactory untuk factory dan Notifiable untuk notifikasi
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * Atribut yang dapat diisi secara massal (mass assignable).
+     * Ini untuk keamanan agar tidak sembarang field bisa diupdate.
      *
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role_id',
+        'name',     // Nama lengkap pengguna
+        'email',    // Email pengguna
+        'password', // Password yang di-hash
+        'role_id',  // ID role pengguna
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Atribut yang harus disembunyikan saat serialisasi (misal ke JSON).
+     * Ini untuk keamanan agar password tidak terlihat.
      *
      * @var list<string>
      */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password',       // Sembunyikan password
+        'remember_token', // Sembunyikan token remember me
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Mendapatkan atribut yang harus di-cast (diubah tipe datanya).
+     * Misal email_verified_at di-cast ke datetime, password ke hashed.
      *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'email_verified_at' => 'datetime', // Cast ke objek Carbon/DateTime
+            'password' => 'hashed',            // Otomatis hash password saat set
         ];
     }
 
     /**
-     * Get the role that belongs to the user.
+     * Mendapatkan role yang dimiliki oleh user.
+     * Relasi belongsTo ke model Role.
      */
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    /**
+     * Mendapatkan peminjaman yang dilakukan oleh user ini.
+     * Relasi hasMany ke model Borrowing.
+     */
+    public function borrowings()
+    {
+        return $this->hasMany(Borrowing::class);
     }
 }

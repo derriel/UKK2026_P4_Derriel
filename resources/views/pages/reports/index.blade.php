@@ -7,28 +7,28 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <x-common.component-card title="Total Buku">
                 <div class="text-center">
-                    <p class="text-3xl font-bold text-brand-500">45</p>
+                    <p class="text-3xl font-bold text-brand-500">{{ $totalBooks }}</p>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Total buku di perpustakaan</p>
                 </div>
             </x-common.component-card>
 
             <x-common.component-card title="Total Anggota">
                 <div class="text-center">
-                    <p class="text-3xl font-bold text-green-500">23</p>
+                    <p class="text-3xl font-bold text-green-500">{{ $totalMembers }}</p>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Total anggota terdaftar</p>
                 </div>
             </x-common.component-card>
 
             <x-common.component-card title="Peminjaman Aktif">
                 <div class="text-center">
-                    <p class="text-3xl font-bold text-yellow-500">8</p>
+                    <p class="text-3xl font-bold text-yellow-500">{{ $activeBorrowings }}</p>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Buku sedang dipinjam</p>
                 </div>
             </x-common.component-card>
 
             <x-common.component-card title="Buku Tersedia">
                 <div class="text-center">
-                    <p class="text-3xl font-bold text-blue-500">37</p>
+                    <p class="text-3xl font-bold text-blue-500">{{ $availableBooks }}</p>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Buku siap dipinjam</p>
                 </div>
             </x-common.component-card>
@@ -68,6 +68,9 @@
                     <button class="btn btn-primary">
                         Tampilkan
                     </button>
+                    <button class="btn btn-success">
+                        <i class="bi bi-plus"></i>Buat Laporan
+                    </button>
                     <button class="btn btn-secondary">
                         Cetak
                     </button>
@@ -87,12 +90,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach([
-                            (object)['id' => 1, 'anggota' => 'Budi Santoso', 'buku' => 'Clean Code', 'tgl_pinjam' => '2024-01-05', 'tgl_kembali' => '2024-01-12', 'durasi' => 7],
-                            (object)['id' => 2, 'anggota' => 'Siti Nurhaliza', 'buku' => 'Design Patterns', 'tgl_pinjam' => '2024-01-03', 'tgl_kembali' => '2024-01-10', 'durasi' => 7],
-                            (object)['id' => 3, 'anggota' => 'Ahmad Wijaya', 'buku' => 'The Pragmatic Programmer', 'tgl_pinjam' => '2024-01-08', 'tgl_kembali' => '2024-01-15', 'durasi' => 7],
-                            (object)['id' => 4, 'anggota' => 'Rini Pratama', 'buku' => 'Clean Code', 'tgl_pinjam' => '2024-01-15', 'tgl_kembali' => '2024-01-22', 'durasi' => 7],
-                        ] as $index => $laporan)
+                        @foreach($borrowings as $index => $laporan)
                             <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                                 <td class="px-4 py-3">{{ $index + 1 }}</td>
                                 <td class="px-4 py-3">{{ $laporan->anggota }}</td>
@@ -123,11 +121,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach([
-                            (object)['id' => 1, 'judul' => 'Clean Code', 'pengarang' => 'Robert C. Martin', 'stok_awal' => 10, 'terpinjam' => 2, 'stok_akhir' => 8, 'status' => 'Normal'],
-                            (object)['id' => 2, 'judul' => 'The Pragmatic Programmer', 'pengarang' => 'David Thomas', 'stok_awal' => 5, 'terpinjam' => 3, 'stok_akhir' => 2, 'status' => 'Rendah'],
-                            (object)['id' => 3, 'judul' => 'Design Patterns', 'pengarang' => 'Gang of Four', 'stok_awal' => 3, 'terpinjam' => 2, 'stok_akhir' => 1, 'status' => 'Kritis'],
-                        ] as $index => $stok)
+                        @foreach($books as $index => $stok)
                             <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                                 <td class="px-4 py-3">{{ $index + 1 }}</td>
                                 <td class="px-4 py-3">{{ $stok->judul }}</td>
@@ -171,11 +165,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach([
-                            (object)['id' => 1, 'nama' => 'Budi Santoso', 'identitas' => '3273081203000001', 'total_pinjam' => 12, 'dipinjam_sekarang' => 1],
-                            (object)['id' => 2, 'nama' => 'Siti Nurhaliza', 'identitas' => '3275022404000002', 'total_pinjam' => 8, 'dipinjam_sekarang' => 2],
-                            (object)['id' => 3, 'nama' => 'Ahmad Wijaya', 'identitas' => '3272051705000003', 'total_pinjam' => 6, 'dipinjam_sekarang' => 0],
-                        ] as $index => $anggota)
+                        @foreach($topMembers as $index => $anggota)
                             <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                                 <td class="px-4 py-3">{{ $index + 1 }}</td>
                                 <td class="px-4 py-3">{{ $anggota->nama }}</td>

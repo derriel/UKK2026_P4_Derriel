@@ -1,10 +1,13 @@
 <?php
 
+// Namespace untuk seeder database
 namespace Database\Seeders;
 
+// Import class yang digunakan
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
+// Class seeder untuk mengisi data tabel books
 class BookSeeder extends Seeder
 {
     /**
@@ -12,16 +15,17 @@ class BookSeeder extends Seeder
      */
     public function run(): void
     {
+        // Array data buku yang akan di-insert ke tabel books
         $books = [
             [
-                'title' => 'Belajar Laravel untuk Pemula',
-                'author' => 'John Doe',
-                'publisher' => 'Tech Publisher',
-                'isbn' => '9781234567890',
-                'stock' => 5,
-                'description' => 'Buku panduan lengkap untuk belajar framework Laravel',
-                'category' => 'Programming',
-                'publication_year' => 2023
+                'title' => 'Belajar Laravel untuk Pemula',        // Judul buku
+                'author' => 'John Doe',                         // Nama penulis
+                'publisher' => 'Tech Publisher',                // Nama penerbit
+                'isbn' => '9781234567890',                      // Nomor ISBN
+                'stock' => 5,                                   // Jumlah stok buku
+                'description' => 'Buku panduan lengkap untuk belajar framework Laravel', // Deskripsi buku
+                'category' => 'Programming',                    // Kategori buku
+                'publication_year' => 2023                      // Tahun terbit
             ],
             [
                 'title' => 'Database Design Fundamentals',
@@ -65,6 +69,7 @@ class BookSeeder extends Seeder
             ]
         ];
 
+        // Loop untuk insert setiap buku ke database
         foreach ($books as $book) {
             \DB::table('books')->insert($book);
         }
