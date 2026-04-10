@@ -23,6 +23,18 @@ class BorrowingController extends Controller
         ]);
     }
 
+    public function memberIndex()
+    {
+        $borrowings = Borrowing::with('book')
+            ->where('user_id', auth()->id())
+            ->get();
+
+        return view('pages.member.borrowings', [
+            'title' => 'Status Peminjaman',
+            'borrowings' => $borrowings,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

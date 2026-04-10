@@ -19,6 +19,7 @@ class Book extends Model
         'description',     // Deskripsi buku
         'category',        // Kategori buku
         'publication_year', // Tahun terbit
+        'cover_image',     // Gambar sampul buku
     ];
 
     /**

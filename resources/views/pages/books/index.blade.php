@@ -79,11 +79,12 @@
                     <thead class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                         <tr>
                             <th class="px-4 py-3 text-left font-semibold">No</th>
-                            <th class="px-4 py-3 text-left font-semibold">Judul Buku</th>
-                            <th class="px-4 py-3 text-left font-semibold">Pengarang</th>
-                            <th class="px-4 py-3 text-left font-semibold">Penerbit</th>
-                            <th class="px-4 py-3 text-left font-semibold">ISBN</th>
-                            <th class="px-4 py-3 text-left font-semibold">Stok</th>
+                        <th class="px-4 py-3 text-left font-semibold">Cover</th>
+                        <th class="px-4 py-3 text-left font-semibold">Judul Buku</th>
+                        <th class="px-4 py-3 text-left font-semibold">Pengarang</th>
+                        <th class="px-4 py-3 text-left font-semibold">Penerbit</th>
+                        <th class="px-4 py-3 text-left font-semibold">ISBN</th>
+                        <th class="px-4 py-3 text-left font-semibold">Stok</th>
                             <th class="px-4 py-3 text-center font-semibold">Aksi</th>
                         </tr>
                     </thead>
@@ -91,6 +92,13 @@
                         @forelse($books as $index => $buku)
                             <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                                 <td class="px-4 py-3">{{ $index + 1 }}</td>
+                                <td class="px-4 py-3">
+                                    @if($buku->cover_image)
+                                        <img src="{{ asset('storage/' . $buku->cover_image) }}" alt="Cover {{ $buku->title }}" class="w-12 h-16 object-cover rounded-md">
+                                    @else
+                                        <div class="w-12 h-16 bg-gray-200 dark:bg-gray-700 rounded-md"></div>
+                                    @endif
+                                </td>
                                 <td class="px-4 py-3">{{ $buku->title }}</td>
                                 <td class="px-4 py-3">{{ $buku->author }}</td>
                                 <td class="px-4 py-3">{{ $buku->publisher }}</td>
@@ -129,7 +137,7 @@
                     <span x-show="editingId">Edit Buku</span>
                 </h2>
                 
-                <form x-ref="bookForm" method="POST" :action="editingId ? updateUrlBase + editingId : createUrl">
+                <form x-ref="bookForm" method="POST" enctype="multipart/form-data" :action="editingId ? updateUrlBase + editingId : createUrl">
                     @csrf
                     <input type="hidden" name="_method" :value="editingId ? 'PUT' : 'POST'">
 
@@ -161,6 +169,11 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deskripsi</label>
                             <textarea x-model="formData.description" name="description" placeholder="Masukkan deskripsi" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" rows="2"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Foto Sampul Buku</label>
+                            <input name="cover_image" type="file" accept="image/*" class="w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
+                            <p class="mt-1 text-xs text-gray-500">Kosongkan jika tidak ingin mengubah foto sampul.</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stok</label>

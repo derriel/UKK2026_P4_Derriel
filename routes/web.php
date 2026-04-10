@@ -1,5 +1,8 @@
 <?php
 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+
 // Import controller yang digunakan dalam routing
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BookController;
@@ -15,6 +18,8 @@ use App\Models\Borrowing;
 Route::middleware('auth')->group(function () {
     // Route untuk halaman dashboard utama
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Route untuk halaman member welcome
+    Route::view('/welcome', 'pages.welcome', ['title' => 'Welcome'])->name('welcome');
 
     // Route untuk halaman manajemen buku
     Route::resource('books', BookController::class)
@@ -33,14 +38,29 @@ Route::middleware('auth')->group(function () {
         ->only(['index', 'store', 'update', 'destroy']);
     Route::post('borrowing-returns/{borrowing}/return', [BorrowingController::class, 'returnBook'])->name('borrowing-returns.return');
 
+    // Member-specific pages
+    Route::get('/member/books', [BookController::class, 'catalog'])->name('member.books.index');
+    Route::get('/member/borrowings', [BorrowingController::class, 'memberIndex'])->name('member.borrowings.index');
+    Route::get('/member/profile', [MemberController::class, 'profile'])->name('member.profile');
+
     // Route untuk halaman laporan
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
+
+    // Route untuk halaman App Config dan Appeal
+    Route::view('/app-config', 'pages.app-config', ['title' => 'App Config'])->name('app-config');
+    Route::view('/appeal-monitor', 'pages.appeals.monitor', ['title' => 'Memantau Appeal'])->name('appeal-monitor');
+    Route::view('/appeal-submit', 'pages.appeals.submit', ['title' => 'Mengajukan Appeal'])->name('appeal-submit');
+    Route::view('/testing', 'pages.testing.index', ['title' => 'Testing (Test Matriks)'])->name('testing');
 });
 
 // Route untuk halaman root (/)
 Route::get('/', function () {
-    // Jika user sudah login, redirect ke dashboard
-    if (auth()->check()) {
+    // Jika user sudah login, redirect sesuai role
+    if (Auth::check()) {
+        $roleName = optional(Auth::user()->role)->name;
+        if (strtolower($roleName) === 'member') {
+            return redirect()->route('welcome');
+        }
         return redirect()->route('dashboard');
     }
     // Jika belum login, tampilkan halaman login
@@ -57,6 +77,13 @@ Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout'])->
 // Route untuk halaman autentikasi (tidak memerlukan middleware auth)
 // Route untuk halaman login
 Route::get('/login', function () {
+    if (Auth::check()) {
+        $roleName = optional(Auth::user()->role)->name;
+        if (strtolower($roleName) === 'member') {
+            return redirect()->route('welcome');
+        }
+        return redirect()->route('dashboard');
+    }
     return view('pages.auth.signin', ['title' => 'Login']);
 })->name('login');
 

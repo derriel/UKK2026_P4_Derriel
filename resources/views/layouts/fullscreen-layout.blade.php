@@ -10,6 +10,7 @@
 
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <!-- Alpine.js -->
     {{-- <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script> --}}
@@ -90,6 +91,7 @@
             }
         })();
     </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body x-data="{ 'loaded': true}" x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
@@ -105,7 +107,7 @@ const checkMobile = () => {
 window.addEventListener('resize', checkMobile);">
 
     {{-- preloader --}}
-    <x-common.preloader/>
+    <x-common.preloader />
     {{-- preloader end --}}
 
     @yield('content')

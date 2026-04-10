@@ -27,6 +27,7 @@ class User extends Authenticatable
         'email',    // Email pengguna
         'password', // Password yang di-hash
         'role_id',  // ID role pengguna
+        'photo',    // Foto profil pengguna
     ];
 
     /**

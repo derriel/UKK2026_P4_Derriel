@@ -20,6 +20,7 @@ class Member extends Model
         'gender',        // Jenis kelamin
         'join_date',     // Tanggal bergabung
         'status',        // Status anggota (aktif/nonaktif)
+        'photo',         // Foto anggota
     ];
 
     /**
