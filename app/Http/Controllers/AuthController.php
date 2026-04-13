@@ -36,8 +36,15 @@ class AuthController extends Controller
             // Regenerasi session untuk keamanan
             $request->session()->regenerate();
 
-            $roleName = optional(Auth::user()->role)->name;
-            $homeRoute = strtolower($roleName) === 'member' ? 'welcome' : 'dashboard';
+            // Tentukan route berdasarkan role pengguna
+            $roleName = strtolower(optional(Auth::user()->role)->name ?? 'guest');
+            
+            $homeRoute = match($roleName) {
+                'admin' => 'dashboard',                  // Admin ke dashboard admin (ecommerce)
+                'petugas' => 'dashboard_petugas',        // Petugas ke dashboard petugas
+                'member' => 'welcome',                   // Member ke halaman welcome
+                default => 'dashboard',
+            };
 
             return redirect()->route($homeRoute)->with('success', 'Berhasil login!');
         }

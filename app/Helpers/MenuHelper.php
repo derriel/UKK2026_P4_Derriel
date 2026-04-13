@@ -58,28 +58,75 @@ class MenuHelper
             ],
         ];
     }
-
+    public static function getPetugasNavItems()
+    {
+        return [
+            [
+                'icon' => 'dashboard',
+                'name' => 'Dashboard',
+                'path' => '/dashboard-petugas',
+            ],
+            [
+                'icon' => 'user-profile',
+                'name' => 'Kelola Data Penerbit',
+                'path' => '/publishers',
+            ],
+            [
+                'icon' => 'user-profile',
+                'name' => 'Kelola Data Pengarang',
+                'path' => '/authors',
+            ],
+            [
+                'icon' => 'tables',
+                'name' => 'Kelola Data Buku',
+                'path' => '/books',
+            ],
+            [
+                'icon' => 'task',
+                'name' => 'Kelola Peminjaman & Pengembalian',
+                'path' => '/borrowing-returns',
+            ],
+            [
+                'icon' => 'charts',
+                'name' => 'Laporan',
+                'path' => '/reports',
+            ]
+        ];
+    }
     // Fungsi untuk mendapatkan item menu lainnya (kosong untuk saat ini)
     public static function getOthersItems()
     {
         return [];
     }
-
+    
     // Fungsi untuk mendapatkan grup menu lengkap
     public static function getMenuGroups()
-    {
-        // Return array grup menu dengan title dan items
+{
+    // Ambil role name (handle kalau null / belum ada relasi)
+    $role = strtolower(optional(auth()->user()->role)->name ?? '');
+
+    // Kalau PETUGAS
+    if ($role === 'petugas') {
         return [
             [
-                'title' => 'Menu',
-                'items' => self::getMainNavItems()
-            ],
-            [
-                'title' => 'Others',
-                'items' => self::getOthersItems()
+                'title' => 'Menu Petugas',
+                'items' => self::getPetugasNavItems()
             ]
         ];
     }
+
+    // Default ADMIN
+    return [
+        [
+            'title' => 'Menu Admin',
+            'items' => self::getMainNavItems()
+        ],
+        [
+            'title' => 'Others',
+            'items' => self::getOthersItems()
+        ]
+    ];
+}
 
     // Fungsi untuk mengecek apakah path aktif berdasarkan request
     public static function isActive($path)

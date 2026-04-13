@@ -13,8 +13,20 @@ use Illuminate\Http\Request;
 // Controller untuk menangani dashboard aplikasi
 class DashboardController extends Controller
 {
+    // Fungsi untuk menampilkan dashboard admin (ecommerce)
+    public function adminDashboard()
+    {
+        return $this->getDashboardData('pages.dashboard.ecommerce');
+    }
+
+    // Fungsi untuk menampilkan dashboard petugas (librarian)
+    public function petugasDashboard()
+    {
+        return $this->getDashboardData('pages.dashboard.dashboard_petugas');
+    }
+
     // Fungsi untuk menampilkan halaman dashboard dengan statistik
-    public function index()
+    public function getDashboardData($view)
     {
         // Hitung total anggota (users) jika tabel ada
         $totalMembers = Schema::hasTable('users') ? User::count() : 0;
@@ -114,7 +126,7 @@ class DashboardController extends Controller
         $userStatuses = array_slice($userStatuses, 0, 10);
 
         // Return view dashboard dengan data yang dikumpulkan
-        return view('pages.dashboard.ecommerce', compact(
+        return view($view, compact(
             'totalBooks',
             'totalBorrowed',
             'totalMembers',

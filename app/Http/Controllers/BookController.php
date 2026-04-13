@@ -5,26 +5,36 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Author;
+use App\Models\Publisher;
 
 class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::all();
+        $books = Book::with(['author', 'publisher'])->get();
+        $authors = Author::all();
+        $publishers = Publisher::all();
 
         return view('pages.books.index', [
             'title' => 'Kelola Data Buku',
             'books' => $books,
+            'authors' => $authors,
+            'publishers' => $publishers,
         ]);
     }
 
     public function catalog()
     {
-        $books = Book::all();
+        $books = Book::with(['author', 'publisher'])->get();
+        $authors = Author::all();
+        $publishers = Publisher::all();
 
-        return view('pages.member.books', [
-            'title' => 'Katalog Buku',
+        return view('pages.books.index', [
+            'title' => 'Kelola Data Buku',
             'books' => $books,
+            'authors' => $authors,
+            'publishers' => $publishers,
         ]);
     }
 
@@ -32,9 +42,9 @@ class BookController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'author' => ['required', 'string', 'max:255'],
+            'author_id' => ['required', 'exists:authors,id'],
+            'publisher_id' => ['nullable', 'exists:publishers,id'],
             'isbn' => ['nullable', 'string', 'max:255'],
-            'publisher' => ['nullable', 'string', 'max:255'],
             'publication_year' => ['nullable', 'integer', 'min:1000', 'max:' . (date('Y') + 1)],
             'category' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
@@ -55,9 +65,9 @@ class BookController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'author' => ['required', 'string', 'max:255'],
+            'author_id' => ['required', 'exists:authors,id'],
+            'publisher_id' => ['nullable', 'exists:publishers,id'],
             'isbn' => ['nullable', 'string', 'max:255'],
-            'publisher' => ['nullable', 'string', 'max:255'],
             'publication_year' => ['nullable', 'integer', 'min:1000', 'max:' . (date('Y') + 1)],
             'category' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],

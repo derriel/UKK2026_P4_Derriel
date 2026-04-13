@@ -10,19 +10,31 @@ use App\Http\Controllers\MemberController;
 use App\Http\Controllers\BorrowingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReportsController;
+use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\PublisherController;
 use App\Models\Book;
 use App\Models\Member;
 use App\Models\Borrowing;
 
 // Grup route yang memerlukan autentikasi (middleware auth)
 Route::middleware('auth')->group(function () {
-    // Route untuk halaman dashboard utama
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Route untuk halaman dashboard admin
+    Route::get('/dashboard', [DashboardController::class, 'adminDashboard'])->name('dashboard');
+    // Route untuk halaman dashboard petugas (librarian)
+    Route::get('/dashboard-petugas', [DashboardController::class, 'petugasDashboard'])->name('dashboard_petugas');
     // Route untuk halaman member welcome
     Route::view('/welcome', 'pages.welcome', ['title' => 'Welcome'])->name('welcome');
 
     // Route untuk halaman manajemen buku
     Route::resource('books', BookController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    // Route untuk halaman manajemen pengarang
+    Route::resource('authors', AuthorController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    // Route untuk halaman manajemen penerbit
+    Route::resource('publishers', PublisherController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
     // Route untuk halaman manajemen anggota

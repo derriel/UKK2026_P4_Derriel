@@ -5,6 +5,8 @@ namespace App\Models;
 
 // Import model base
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Author;
+use App\Models\Publisher;
 
 // Model Book yang mewakili tabel books di database
 class Book extends Model
@@ -12,8 +14,8 @@ class Book extends Model
     // Atribut yang dapat diisi secara massal
     protected $fillable = [
         'title',           // Judul buku
-        'author',          // Penulis buku
-        'publisher',       // Penerbit buku
+        'author_id',          // Penulis buku
+        'publisher_id',       // Penerbit buku
         'isbn',            // ISBN buku
         'stock',           // Stok buku
         'description',     // Deskripsi buku
@@ -29,5 +31,14 @@ class Book extends Model
     public function borrowings()
     {
         return $this->hasMany(Borrowing::class);
+    }
+    public function author()
+    {
+        return $this->belongsTo(Author::class);
+    }
+
+    public function publisher()
+    {
+        return $this->belongsTo(Publisher::class);
     }
 }
