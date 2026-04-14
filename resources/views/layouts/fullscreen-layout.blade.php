@@ -105,6 +105,7 @@ const checkMobile = () => {
     }
 };
 window.addEventListener('resize', checkMobile);">
+    @if (request()->routeIs('landing'))
     <header class="bg-white dark:bg-gray-800 shadow">
         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -113,22 +114,21 @@ window.addEventListener('resize', checkMobile);">
         </div>
         <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
             <form action="{{ route('books.search') }}" method="GET" class="flex gap-2">
-                <input 
-                    type="text" 
-                    name="query" 
-                    placeholder="Cari buku..." 
+                <input
+                    type="text"
+                    name="query"
+                    placeholder="Cari buku..."
                     value="{{ request('query') }}"
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                <button 
-                    type="submit" 
-                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition"
-                >
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button
+                    type="submit"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800 transition">
                     Cari
                 </button>
             </form>
         </div>
     </header>
+    @endif
 
     {{-- preloader --}}
     <x-common.preloader />
