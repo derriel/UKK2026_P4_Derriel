@@ -5,6 +5,7 @@ namespace Database\Seeders;
 
 // Import model dan class yang digunakan
 use App\Models\User;
+use Database\Seeders\SiswaSeeder;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -19,8 +20,9 @@ class DatabaseSeeder extends Seeder
         // Memanggil seeder lainnya untuk mengisi data awal
         $this->call([
             RoleSeeder::class,    // Seeder untuk tabel roles
+            ClassRoomSeeder::class, // Seeder untuk tabel class_rooms
             BookSeeder::class,    // Seeder untuk tabel books
-            MemberSeeder::class,  // Seeder untuk tabel members
+            SiswaSeeder::class,  // Seeder untuk tabel siswa
         ]);
 
         // Membuat user admin dengan role admin

@@ -28,6 +28,7 @@ class User extends Authenticatable
         'password', // Password yang di-hash
         'role_id',  // ID role pengguna
         'photo',    // Foto profil pengguna
+        'last_seen', // Waktu terakhir pengguna online
     ];
 
     /**
@@ -52,6 +53,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime', // Cast ke objek Carbon/DateTime
             'password' => 'hashed',            // Otomatis hash password saat set
+            'last_seen' => 'datetime',         // Cast last_seen ke datetime
         ];
     }
 
@@ -72,4 +74,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Borrowing::class);
     }
+    public function isOnline()
+{
+    return $this->last_seen && $this->last_seen->gt(now()->subMinutes(2));
+}
 }

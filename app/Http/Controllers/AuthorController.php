@@ -7,6 +7,13 @@ use Illuminate\Http\Request;
 
 class AuthorController extends Controller
 {
+    public function __construct()
+    {
+        if (!\Illuminate\Support\Facades\Auth::check() || strtolower(optional(\Illuminate\Support\Facades\Auth::user()->role)->name) !== 'admin') {
+            abort(403);
+        }
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -35,7 +42,10 @@ class AuthorController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:authors,name'],
-            'description' => ['nullable', 'string', 'max:1000'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'birth_date' => ['nullable', 'date'],
+            'nationality' => ['nullable', 'string', 'max:255'],
+            'biography' => ['nullable', 'string'],
         ]);
 
         Author::create($validated);
@@ -66,7 +76,10 @@ class AuthorController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:authors,name,' . $author->id],
-            'description' => ['nullable', 'string', 'max:1000'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'birth_date' => ['nullable', 'date'],
+            'nationality' => ['nullable', 'string', 'max:255'],
+            'biography' => ['nullable', 'string'],
         ]);
 
         $author->update($validated);

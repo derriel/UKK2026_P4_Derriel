@@ -6,14 +6,16 @@ use Illuminate\Support\Facades\Auth;
 // Import controller yang digunakan dalam routing
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\BookController;
-use App\Http\Controllers\MemberController;
+use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\BorrowingController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PublisherController;
+use App\Http\Controllers\RackController;
 use App\Models\Book;
-use App\Models\Member;
+use App\Models\Siswa;
 use App\Models\Borrowing;
 
 // Grup route yang memerlukan autentikasi (middleware auth)
@@ -37,32 +39,43 @@ Route::middleware('auth')->group(function () {
     Route::resource('publishers', PublisherController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
+    // Route untuk halaman manajemen kategori buku
+    Route::resource('categories', CategoryController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
+    // Route untuk halaman manajemen rak buku
+    Route::resource('racks', RackController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+
     // Route untuk halaman manajemen anggota
-    Route::resource('members', MemberController::class)
+    Route::resource('members', SiswaController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 
     // Route untuk halaman manajemen users
     Route::resource('users', UserController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+    Route::get('users-status', [UserController::class, 'status'])->name('users.status');
 
     // Route untuk halaman manajemen peminjaman dan pengembalian
     Route::resource('borrowing-returns', BorrowingController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+    Route::post('borrowing-returns/{borrowing}/approve-borrow', [BorrowingController::class, 'approveBorrow'])->name('borrowing-returns.approveBorrow');
+    Route::post('borrowing-returns/{borrowing}/approve-return', [BorrowingController::class, 'approveReturn'])->name('borrowing-returns.approveReturn');
     Route::post('borrowing-returns/{borrowing}/return', [BorrowingController::class, 'returnBook'])->name('borrowing-returns.return');
 
     // Member-specific pages
     Route::get('/member/books', [BookController::class, 'catalog'])->name('member.books.index');
+    Route::get('/member/books/{book}', [BookController::class, 'show'])->name('member.books.show');
+    Route::post('/member/books/{book}/borrow', [BorrowingController::class, 'borrow'])->name('member.books.borrow');
     Route::get('/member/borrowings', [BorrowingController::class, 'memberIndex'])->name('member.borrowings.index');
-    Route::get('/member/profile', [MemberController::class, 'profile'])->name('member.profile');
+    Route::put('/member/borrowings/{borrowing}/return', [BorrowingController::class, 'memberReturn'])->name('member.borrowings.return');
+    Route::get('/member/profile', [SiswaController::class, 'profile'])->name('member.profile');
 
     // Route untuk halaman laporan
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports');
 
-    // Route untuk halaman App Config dan Appeal
+    // Route untuk halaman App Config
     Route::view('/app-config', 'pages.app-config', ['title' => 'App Config'])->name('app-config');
-    Route::view('/appeal-monitor', 'pages.appeals.monitor', ['title' => 'Memantau Appeal'])->name('appeal-monitor');
-    Route::view('/appeal-submit', 'pages.appeals.submit', ['title' => 'Mengajukan Appeal'])->name('appeal-submit');
-    Route::view('/testing', 'pages.testing.index', ['title' => 'Testing (Test Matriks)'])->name('testing');
 });
 
 // Route untuk halaman root (/)
@@ -118,6 +131,10 @@ Route::post('/forgot-password', [App\Http\Controllers\AuthController::class, 'se
 Route::get('/reset-password', [App\Http\Controllers\AuthController::class, 'showResetPasswordForm'])->name('password.reset.form');
 // Route untuk menangani reset password
 Route::post('/reset-password', [App\Http\Controllers\AuthController::class, 'resetPassword'])->name('password.reset');
+
+Route::get('/user-status', [UserController::class, 'status'])->name('user.status');
+    Route::get('/books/search', [BookController::class, 'search'])
+    ->name('books.search');
 
 
 

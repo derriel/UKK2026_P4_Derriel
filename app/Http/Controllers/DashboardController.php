@@ -32,8 +32,10 @@ class DashboardController extends Controller
         $totalMembers = Schema::hasTable('users') ? User::count() : 0;
         // Hitung total buku jika tabel ada
         $totalBooks = Schema::hasTable('books') ? DB::table('books')->count() : 0;
-        // Inisialisasi total peminjaman yang belum dikembalikan
+        // Inisialisasi total peminjaman, pengajuan, dan pengembalian
         $totalBorrowed = 0;
+        $totalBorrowRequests = 0;
+        $totalReturnRequests = 0;
 
         // Data dummy untuk buku paling sering dipinjam (fallback)
         $topBorrowedBooks = collect([
@@ -44,10 +46,18 @@ class DashboardController extends Controller
             ['title' => 'Manajemen Proyek', 'borrow_count' => 5],
         ]);
 
-        // Jika tabel borrowings ada, hitung total peminjaman aktif dan ambil top borrowed books
+        // Jika tabel borrowings ada, hitung status peminjaman dan ambil top borrowed books
         if (Schema::hasTable('borrowings')) {
             $totalBorrowed = DB::table('borrowings')
-                ->whereNull('returned_at') // Yang belum dikembalikan
+                ->where('status', 'borrowed')
+                ->count();
+
+            $totalBorrowRequests = DB::table('borrowings')
+                ->where('status', 'requested')
+                ->count();
+
+            $totalReturnRequests = DB::table('borrowings')
+                ->where('status', 'return_requested')
                 ->count();
 
             // Query untuk mendapatkan buku paling sering dipinjam
@@ -63,37 +73,19 @@ class DashboardController extends Controller
         // Inisialisasi array untuk pengguna aktif dan offline
         $activeUsers = [];
         $offlineUsers = [];
+        $activeMembers = [];
+        $offlineMembers = [];
         $activeAccounts = 0;
 
-        // Jika tabel sessions dan users ada, cek pengguna online berdasarkan session
-        if (Schema::hasTable('sessions') && Schema::hasTable('users')) {
-            // Ambil lifetime session dari config
-            $sessionLifetime = config('session.lifetime', 120);
-            // Hitung threshold waktu untuk dianggap online
-            $threshold = Carbon::now()->subMinutes($sessionLifetime)->timestamp;
+        $onlineIds = [];
+        if (Schema::hasTable('sessions')) {
+            $onlineIds = $this->getOnlineUserIdsFromSessions(5);
+        }
 
-            // Ambil session yang aktif
-            $sessionRows = DB::table('sessions')
-                ->where('last_activity', '>=', $threshold)
-                ->get();
-
-            // Ekstrak user ID dari payload session
-            $onlineIds = [];
-            foreach ($sessionRows as $session) {
-                $userId = $this->extractUserIdFromPayload($session->payload);
-                if ($userId) {
-                    $onlineIds[] = (int) $userId;
-                }
-            }
-
-            // Hilangkan duplikat dan hitung jumlah akun aktif
-            $onlineIds = array_unique($onlineIds);
-            $activeAccounts = count($onlineIds);
-
-            // Ambil semua users dan tentukan status online/offline
-            $users = User::orderBy('name')->get(['id', 'name', 'email']);
+        if (Schema::hasTable('users')) {
+            $users = User::with('role')->orderBy('name')->get(['id', 'name', 'email', 'role_id']);
             foreach ($users as $user) {
-                $status = in_array($user->id, $onlineIds) ? 'Online' : 'Offline';
+                $status = in_array($user->id, $onlineIds, true) ? 'Online' : 'Offline';
                 $target = [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -101,39 +93,71 @@ class DashboardController extends Controller
                     'status' => $status,
                 ];
 
-                // Pisahkan ke array aktif atau offline
-                if ($status === 'Online') {
-                    $activeUsers[] = $target;
+                // Pisahkan berdasarkan role
+                $roleName = strtolower($user->role?->name ?? '');
+                if ($roleName === 'member') {
+                    if ($status === 'Online') {
+                        $activeMembers[] = $target;
+                    } else {
+                        $offlineMembers[] = $target;
+                    }
                 } else {
-                    $offlineUsers[] = $target;
+                    if ($status === 'Online') {
+                        $activeUsers[] = $target;
+                    } else {
+                        $offlineUsers[] = $target;
+                    }
                 }
             }
-        } elseif (Schema::hasTable('users')) {
-            // Jika hanya tabel users ada, semua dianggap offline
-            $users = User::orderBy('name')->get(['id', 'name', 'email']);
-            foreach ($users as $user) {
-                $offlineUsers[] = [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'status' => 'Offline',
-                ];
-            }
+
+            $activeAccounts = count($activeUsers) + count($activeMembers);
         }
 
-        // Gabungkan dan batasi ke 10 pengguna untuk ditampilkan
+        // Gabungkan status users dan members
         $userStatuses = array_merge($activeUsers, $offlineUsers);
         $userStatuses = array_slice($userStatuses, 0, 10);
 
-        // Return view dashboard dengan data yang dikumpulkan
-        return view($view, compact(
+        $memberStatuses = array_merge($activeMembers, $offlineMembers);
+        $memberStatuses = array_slice($memberStatuses, 0, 10);
+
+        // Build data array based on which view is being shown
+        $data = compact(
             'totalBooks',
             'totalBorrowed',
+            'totalBorrowRequests',
+            'totalReturnRequests',
             'totalMembers',
             'activeAccounts',
-            'topBorrowedBooks',
-            'userStatuses'
-        ));
+            'topBorrowedBooks'
+        );
+
+        // Add view-specific data
+        if ($view === 'pages.dashboard.ecommerce') {
+            $data['userStatuses'] = $userStatuses;
+        } else {
+            $data['memberStatuses'] = $memberStatuses;
+        }
+
+        return view($view, $data);
+    }
+
+    // Fungsi privat untuk mendapatkan user ID yang aktif berdasarkan session
+    private function getOnlineUserIdsFromSessions(int $minutes = 5): array
+    {
+        $threshold = Carbon::now()->subMinutes($minutes)->timestamp;
+        $sessionRows = DB::table('sessions')
+            ->where('last_activity', '>=', $threshold)
+            ->get();
+
+        $onlineIds = [];
+        foreach ($sessionRows as $session) {
+            $userId = $this->extractUserIdFromPayload($session->payload);
+            if ($userId) {
+                $onlineIds[] = (int) $userId;
+            }
+        }
+
+        return array_unique($onlineIds);
     }
 
     // Fungsi privat untuk mengekstrak user ID dari payload session Laravel
@@ -160,8 +184,20 @@ class DashboardController extends Controller
 
         // Cari key yang mengandung login_ dan ambil ID
         foreach ($data as $key => $value) {
-            if (preg_match('/^login_/', $key) && is_array($value) && isset($value['id'])) {
+            if (!preg_match('/^login_/', $key)) {
+                continue;
+            }
+
+            if (is_int($value) || ctype_digit((string) $value)) {
+                return (int) $value;
+            }
+
+            if (is_array($value) && isset($value['id'])) {
                 return (int) $value['id'];
+            }
+
+            if (is_object($value) && property_exists($value, 'id')) {
+                return (int) $value->id;
             }
         }
 

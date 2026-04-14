@@ -135,5 +135,64 @@
 </body>
 
 @stack('scripts')
-
+@if(request()->routeIs('dashboard'))
+<script>
+setInterval(() => {
+    fetch("{{ route('user.status') }}")
+        .then(res => res.json())
+        .then(data => {
+            // Update Data Users tab di admin dashboard
+            const tbody = document.querySelector('tbody');
+            if (tbody) {
+                tbody.innerHTML = data.filter(user => user.role !== 'member').slice(0, 10).map(user => `
+                    <tr>
+                        <td class="px-4 py-4 text-gray-900 dark:text-white">${user.name}</td>
+                        <td class="px-4 py-4">${user.email}</td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold
+                                ${user.status === 'Online'
+                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'}">
+                                <span class="w-2 h-2 rounded-full ${user.status === 'Online' ? 'bg-green-400' : 'bg-gray-400'}"></span>
+                                ${user.status}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('') || '<tr><td class="px-4 py-6 text-center text-gray-500 dark:text-gray-400" colspan="3">Belum ada data user yang tersedia.</td></tr>';
+            }
+        })
+        .catch(error => console.error('Error updating user statuses:', error));
+}, 5000); // refresh tiap 5 detik
+</script>
+@elseif(request()->routeIs('dashboard_petugas'))
+<script>
+setInterval(() => {
+    fetch("{{ route('user.status') }}")
+        .then(res => res.json())
+        .then(data => {
+            // Update Data Siswa di petugas dashboard
+            const tbody = document.querySelector('#siswa-tbody');
+            if (tbody) {
+                const membersData = data.filter(user => user.role === 'member');
+                tbody.innerHTML = membersData.slice(0, 10).map(member => `
+                    <tr>
+                        <td class="px-4 py-4 text-gray-900 dark:text-white">${member.name}</td>
+                        <td class="px-4 py-4">${member.email}</td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold
+                                ${member.status === 'Online'
+                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                                    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'}">
+                                <span class="w-2 h-2 rounded-full ${member.status === 'Online' ? 'bg-green-400' : 'bg-gray-400'}"></span>
+                                ${member.status}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('') || '<tr><td class="px-4 py-6 text-center text-gray-500 dark:text-gray-400" colspan="3">Belum ada data siswa yang tersedia.</td></tr>';
+            }
+        })
+        .catch(error => console.error('Error updating siswa statuses:', error));
+}, 5000); // refresh tiap 5 detik
+</script>
+@endif
 </html>

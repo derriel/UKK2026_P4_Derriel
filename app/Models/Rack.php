@@ -3,14 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Book;
 
-class Publisher extends Model
+class Rack extends Model
 {
     protected $fillable = [
         'name',
-        'city',
-        'phone',
-        'logo',
+        'location',
+        'description',
     ];
 
     public function books()

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-common.page-breadcrumb pageTitle="Kelola Data Users" />
+    <x-common.page-breadcrumb pageTitle="Data Users" />
     <div class="space-y-6" x-data="{
             openUserModal: false,
             showUserDeleteModal: false,
@@ -71,13 +71,14 @@
                         <th class="px-4 py-3 text-left font-semibold">Nama</th>
                         <th class="px-4 py-3 text-left font-semibold">Email</th>
                         <th class="px-4 py-3 text-left font-semibold">Role</th>
+                        <th class="px-4 py-3 text-left font-semibold">Status</th>
                         <th class="px-4 py-3 text-left font-semibold">Tgl. Daftar</th>
                             <th class="px-4 py-3 text-center font-semibold">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($users as $index => $user)
-                            <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+                            <tr data-user-id="{{ $user->id }}" class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                                 <td class="px-4 py-3">{{ $index + 1 }}</td>
                                 <td class="px-4 py-3">
                                     @if($user->photo)
@@ -91,6 +92,11 @@
                                 <td class="px-4 py-3">
                                     <span class="px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded text-xs font-semibold">
                                         {{ $user->role?->name ?? '-' }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="status-badge px-2 py-1 rounded text-xs font-semibold {{ $user->isOnline() ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300' }}">
+                                        {{ $user->isOnline() ? 'Online' : 'Offline' }}
                                     </span>
                                 </td>
                                 <td class="px-4 py-3">{{ $user->created_at?->format('Y-m-d') ?? '-' }}</td>
@@ -180,4 +186,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Fungsi untuk memperbarui status online/offline secara real-time
+        function updateUserStatuses() {
+            fetch('{{ route("users.status") }}')
+                .then(response => response.json())
+                .then(data => {
+                    data.forEach(user => {
+                        const statusElement = document.querySelector(`[data-user-id="${user.id}"] .status-badge`);
+                        if (statusElement) {
+                            statusElement.className = `px-2 py-1 rounded text-xs font-semibold ${user.is_online ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300'}`;
+                            statusElement.textContent = user.is_online ? 'Online' : 'Offline';
+                        }
+                    });
+                })
+                .catch(error => console.error('Error updating user statuses:', error));
+        }
+
+        // Jalankan update setiap 30 detik
+        setInterval(updateUserStatuses, 30000);
+
+        // Jalankan sekali saat load
+        document.addEventListener('DOMContentLoaded', updateUserStatuses);
+    </script>
 @endsection

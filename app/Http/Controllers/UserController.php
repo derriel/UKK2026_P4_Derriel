@@ -6,6 +6,9 @@ use App\Models\User;
 use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Carbon\Carbon;
 
 class UserController extends Controller
 {
@@ -75,5 +78,88 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('users.index')->with('success', 'User berhasil dihapus.');
+    }
+
+    public function status()
+    {
+        $activeUserIds = [];
+        if (Schema::hasTable('sessions')) {
+            $activeUserIds = $this->getOnlineUserIdsFromSessions(5);
+        }
+
+$users = User::with('role')->select('id', 'name', 'email', 'role_id')
+            ->get()
+            ->map(function ($user) use ($activeUserIds) {
+                $isOnline = in_array($user->id, $activeUserIds, true);
+
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'role' => strtolower($user->role?->name ?? ''),
+            'status' => $isOnline ? 'Online' : 'Offline',
+            'is_online' => $isOnline,
+        ];
+    })
+    ->sortByDesc('is_online') // 🔥 INI PENTING
+    ->values();
+
+        return response()->json($users);
+    }
+
+    private function getOnlineUserIdsFromSessions(int $minutes = 5): array
+    {
+        $threshold = Carbon::now()->subMinutes($minutes)->timestamp;
+        $sessionRows = DB::table('sessions')
+            ->where('last_activity', '>=', $threshold)
+            ->get();
+
+        $onlineIds = [];
+        foreach ($sessionRows as $session) {
+            $userId = $this->extractUserIdFromPayload($session->payload);
+            if ($userId) {
+                $onlineIds[] = (int) $userId;
+            }
+        }
+
+        return array_unique($onlineIds);
+    }
+
+    private function extractUserIdFromPayload(string $payload): ?int
+    {
+        $decoded = @base64_decode($payload, true);
+        $data = null;
+
+        if ($decoded !== false && $decoded !== $payload) {
+            $data = @unserialize($decoded);
+        }
+
+        if ($data === false) {
+            $data = @unserialize($payload);
+        }
+
+        if (!is_array($data)) {
+            return null;
+        }
+
+        foreach ($data as $key => $value) {
+            if (!preg_match('/^login_/', $key)) {
+                continue;
+            }
+
+            if (is_int($value) || ctype_digit((string) $value)) {
+                return (int) $value;
+            }
+
+            if (is_array($value) && isset($value['id'])) {
+                return (int) $value['id'];
+            }
+
+            if (is_object($value) && property_exists($value, 'id')) {
+                return (int) $value->id;
+            }
+        }
+
+        return null;
     }
 }

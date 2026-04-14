@@ -4,13 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Publisher extends Model
+class Category extends Model
 {
     protected $fillable = [
         'name',
-        'city',
-        'phone',
-        'logo',
     ];
 
     public function books()

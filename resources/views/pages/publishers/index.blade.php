@@ -12,14 +12,18 @@
             deleteUrlBase: '{{ url('/publishers') }}/',
             formData: {
                 name: '',
-                description: '',
+                city: '',
+                phone: '',
+                logoUrl: null,
             },
 
             openCreateModal() {
                 this.editingId = null;
                 this.formData = {
                     name: '',
-                    description: '',
+                    city: '',
+                    phone: '',
+                    logoUrl: null,
                 };
                 this.openModal = true;
             },
@@ -28,7 +32,9 @@
                 this.editingId = publisher.id;
                 this.formData = {
                     name: publisher.name,
-                    description: publisher.description,
+                    city: publisher.city,
+                    phone: publisher.phone,
+                    logoUrl: publisher.logo,
                 };
                 this.openModal = true;
             },
@@ -62,7 +68,9 @@
                     <tr>
                         <th class="px-4 py-3 text-left font-semibold">No</th>
                         <th class="px-4 py-3 text-left font-semibold">Nama Penerbit</th>
-                        <th class="px-4 py-3 text-left font-semibold">Deskripsi</th>
+                        <th class="px-4 py-3 text-left font-semibold">Logo</th>
+                        <th class="px-4 py-3 text-left font-semibold">Kota</th>
+                        <th class="px-4 py-3 text-left font-semibold">Telepon</th>
                         <th class="px-4 py-3 text-center font-semibold">Aksi</th>
                     </tr>
                 </thead>
@@ -71,10 +79,18 @@
                     <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                         <td class="px-4 py-3">{{ $index + 1 }}</td>
                         <td class="px-4 py-3">{{ $publisher->name }}</td>
-                        <td class="px-4 py-3">{{ $publisher->description ?? '-' }}</td>
+                        <td class="px-4 py-3">
+                            @if($publisher->logo)
+                                <img src="{{ asset('storage/' . $publisher->logo) }}" alt="Logo {{ $publisher->name }}" class="w-16 h-16 object-cover rounded">
+                            @else
+                                <div class="bg-gray-200 border-2 border-dashed rounded-xl w-16 h-16"></div>
+                            @endif
+                        </td>
+                        <td class="px-4 py-3">{{ $publisher->city ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $publisher->phone ?? '-' }}</td>
                         <td class="px-4 py-3">
                             <div class="flex justify-center gap-2">
-                                <button @click="editPublisher(@js(['id' => $publisher->id, 'name' => $publisher->name, 'description' => $publisher->description]))" class="btn btn-sm btn-outline-primary">
+                                <button @click="editPublisher(@js(['id' => $publisher->id, 'name' => $publisher->name, 'city' => $publisher->city, 'phone' => $publisher->phone, 'logo' => $publisher->logo ? asset('storage/' . $publisher->logo) : null]))" class="btn btn-sm btn-outline-primary">
                                     Edit
                                 </button>
                                 <button @click="openDeleteModal({{ $publisher->id }})" class="btn btn-sm btn-outline-danger">
@@ -85,7 +101,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">Belum ada data penerbit.</td>
+                        <td colspan="6" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">Belum ada data penerbit.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -101,7 +117,7 @@
                 <span x-show="editingId">Edit Penerbit</span>
             </h2>
 
-            <form x-ref="publisherForm" method="POST" :action="editingId ? updateUrlBase + editingId : createUrl">
+            <form x-ref="publisherForm" method="POST" enctype="multipart/form-data" :action="editingId ? updateUrlBase + editingId : createUrl">
                 @csrf
                 <input type="hidden" name="_method" :value="editingId ? 'PUT' : 'POST'">
 
@@ -111,8 +127,19 @@
                         <input x-model="formData.name" name="name" type="text" placeholder="Masukkan nama penerbit" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deskripsi</label>
-                        <textarea x-model="formData.description" name="description" placeholder="Masukkan deskripsi" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" rows="3"></textarea>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Logo Penerbit</label>
+                        <input name="logo" type="file" accept="image/*" class="w-full text-sm text-gray-500 file:border-0 file:bg-primary file:px-3 file:py-2 file:text-white file:rounded-lg">
+                        <template x-if="formData.logoUrl">
+                            <img :src="formData.logoUrl" alt="Logo saat ini" class="mt-3 w-24 h-24 object-cover rounded">
+                        </template>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kota</label>
+                        <input x-model="formData.city" name="city" type="text" placeholder="Masukkan kota" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Telepon</label>
+                        <input x-model="formData.phone" name="phone" type="text" placeholder="Masukkan nomor telepon" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                     </div>
                 </div>
 

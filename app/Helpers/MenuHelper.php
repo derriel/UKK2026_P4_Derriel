@@ -23,28 +23,33 @@ class MenuHelper
             ],
             [
                 'icon' => 'user-profile',
-                'name' => 'Kelola Data Anggota',
+                'name' => 'Kelola Data Pengarang',
+                'path' => '/authors',
+            ],
+            [
+                'icon' => 'user-profile',
+                'name' => 'Kelola Data Penerbit',
+                'path' => '/publishers',
+            ],
+            [
+                'icon' => 'tables',
+                'name' => 'Kelola Kategori',
+                'path' => '/categories',
+            ],
+            [
+                'icon' => 'user-profile',
+                'name' => 'Data Users',
+                'path' => '/users',
+            ],
+            [
+                'icon' => 'user-profile',
+                'name' => 'Siswa',
                 'path' => '/members',
             ],
             [
                 'icon' => 'settings',
                 'name' => 'App Config',
                 'path' => '/app-config',
-            ],
-            [
-                'icon' => 'support-ticket',
-                'name' => 'Memantau Appeal',
-                'path' => '/appeal-monitor',
-            ],
-            [
-                'icon' => 'forms',
-                'name' => 'Mengajukan Appeal',
-                'path' => '/appeal-submit',
-            ],
-            [
-                'icon' => 'charts',
-                'name' => 'Testing (Test Matriks)',
-                'path' => '/testing',
             ],
             [
                 'icon' => 'task',
@@ -68,29 +73,9 @@ class MenuHelper
             ],
             [
                 'icon' => 'user-profile',
-                'name' => 'Kelola Data Penerbit',
-                'path' => '/publishers',
+                'name' => 'Kelola Data Siswa',
+                'path' => '/members',
             ],
-            [
-                'icon' => 'user-profile',
-                'name' => 'Kelola Data Pengarang',
-                'path' => '/authors',
-            ],
-            [
-                'icon' => 'tables',
-                'name' => 'Kelola Data Buku',
-                'path' => '/books',
-            ],
-            [
-                'icon' => 'task',
-                'name' => 'Kelola Peminjaman & Pengembalian',
-                'path' => '/borrowing-returns',
-            ],
-            [
-                'icon' => 'charts',
-                'name' => 'Laporan',
-                'path' => '/reports',
-            ]
         ];
     }
     // Fungsi untuk mendapatkan item menu lainnya (kosong untuk saat ini)
@@ -103,7 +88,7 @@ class MenuHelper
     public static function getMenuGroups()
 {
     // Ambil role name (handle kalau null / belum ada relasi)
-    $role = strtolower(optional(auth()->user()->role)->name ?? '');
+    $role = strtolower(optional(\Illuminate\Support\Facades\Auth::user()->role)->name ?? '');
 
     // Kalau PETUGAS
     if ($role === 'petugas') {

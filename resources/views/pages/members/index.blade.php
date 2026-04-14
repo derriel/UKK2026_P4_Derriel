@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    <x-common.page-breadcrumb pageTitle="Kelola Data Anggota" />
+    <x-common.page-breadcrumb pageTitle="Daftar Data Siswa" />
     <div class="space-y-6" x-data="{
-            // Member management
+            // Siswa management
             openModal: false,
             showDeleteModal: false,
             editingId: null,
@@ -12,10 +12,14 @@
             updateUrlBase: '{{ url('/members') }}/',
             deleteUrlBase: '{{ url('/members') }}/',
             formData: {
+                id_siswa: '',
+                nis: '',
                 name: '',
                 email: '',
                 phone: '',
                 address: '',
+                kelas: '',
+                jurusan: '',
             },
 
             // User management
@@ -33,14 +37,18 @@
                 role_id: '',
             },
 
-            // Member functions
+            // Siswa functions
             openCreateModal() {
                 this.editingId = null;
                 this.formData = {
+                    id_siswa: '',
+                    nis: '',
                     name: '',
                     email: '',
                     phone: '',
                     address: '',
+                    kelas: '',
+                    jurusan: '',
                 };
                 this.openModal = true;
             },
@@ -48,10 +56,14 @@
             editMember(member) {
                 this.editingId = member.id;
                 this.formData = {
+                    id_siswa: member.id_siswa,
+                    nis: member.nis,
                     name: member.name,
                     email: member.email,
                     phone: member.phone,
                     address: member.address,
+                    kelas: member.kelas,
+                    jurusan: member.jurusan,
                 };
                 this.openModal = true;
             },
@@ -99,10 +111,10 @@
                 this.deleteUserId = null;
             },
         }">
-        <x-common.component-card title="Daftar Data Anggota">
+        <x-common.component-card title="Daftar Data Siswa">
             <div class="flex justify-end mb-4">
                 <button @click="openCreateModal()" class="btn btn-primary">
-                    + Tambah Anggota
+                    + Tambah Siswa
                 </button>
             </div>
 
@@ -118,34 +130,32 @@
                     <thead class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
                         <tr>
                             <th class="px-4 py-3 text-left font-semibold">No</th>
-                        <th class="px-4 py-3 text-left font-semibold">Foto</th>
-                        <th class="px-4 py-3 text-left font-semibold">No. Anggota</th>
+                        <th class="px-4 py-3 text-left font-semibold">ID Siswa</th>
+                        <th class="px-4 py-3 text-left font-semibold">NIS</th>
                         <th class="px-4 py-3 text-left font-semibold">Nama</th>
                         <th class="px-4 py-3 text-left font-semibold">Email</th>
+                        <th class="px-4 py-3 text-left font-semibold">Kelas</th>
+                        <th class="px-4 py-3 text-left font-semibold">Jurusan</th>
                         <th class="px-4 py-3 text-left font-semibold">No. Telepon</th>
                         <th class="px-4 py-3 text-left font-semibold">Alamat</th>
                             <th class="px-4 py-3 text-center font-semibold">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($members as $index => $anggota)
+                        @forelse($siswa as $index => $anggota)
                             <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
                                 <td class="px-4 py-3">{{ $index + 1 }}</td>
-                                <td class="px-4 py-3">
-                                    @if($anggota->photo)
-                                        <img src="{{ asset('storage/' . $anggota->photo) }}" alt="Foto {{ $anggota->name }}" class="w-10 h-10 rounded-full object-cover">
-                                    @else
-                                        <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700"></div>
-                                    @endif
-                                </td>
-                                <td class="px-4 py-3">{{ $anggota->member_number }}</td>
+                                <td class="px-4 py-3">{{ $anggota->id_siswa }}</td>
+                                <td class="px-4 py-3">{{ $anggota->nis }}</td>
                                 <td class="px-4 py-3">{{ $anggota->name }}</td>
                                 <td class="px-4 py-3">{{ $anggota->email }}</td>
+                                <td class="px-4 py-3">{{ $anggota->kelas }}</td>
+                                <td class="px-4 py-3">{{ $anggota->jurusan }}</td>
                                 <td class="px-4 py-3">{{ $anggota->phone }}</td>
                                 <td class="px-4 py-3">{{ $anggota->address }}</td>
                                 <td class="px-4 py-3">
                                     <div class="flex justify-center gap-2">
-                                        <button @click="editMember(@js(['id' => $anggota->id, 'name' => $anggota->name, 'email' => $anggota->email, 'phone' => $anggota->phone, 'address' => $anggota->address]))" class="btn btn-sm btn-outline-primary">
+                                        <button @click="editMember(@js(['id' => $anggota->id, 'id_siswa' => $anggota->id_siswa, 'nis' => $anggota->nis, 'name' => $anggota->name, 'email' => $anggota->email, 'phone' => $anggota->phone, 'address' => $anggota->address, 'kelas' => $anggota->kelas, 'jurusan' => $anggota->jurusan]))" class="btn btn-sm btn-outline-primary">
                                             Edit
                                         </button>
                                         <button @click="openDeleteModal({{ $anggota->id }})" class="btn btn-sm btn-outline-danger">
@@ -162,83 +172,51 @@
                     </tbody>
                 </table>
             </div>
-
-            <div class="overflow-x-auto">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-lg font-semibold text-gray-800 dark:text-white">Data Users (Pengguna Sistem)</h3>
-                    <button @click="openCreateUserModal()" class="btn btn-primary btn-sm">
-                        + Tambah User
-                    </button>
-                </div>
-                <table class="w-full text-sm text-gray-700 dark:text-gray-300">
-                    <thead class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                        <tr>
-                            <th class="px-4 py-3 text-left font-semibold">No</th>
-                            <th class="px-4 py-3 text-left font-semibold">Nama</th>
-                            <th class="px-4 py-3 text-left font-semibold">Email</th>
-                            <th class="px-4 py-3 text-left font-semibold">Role</th>
-                            <th class="px-4 py-3 text-left font-semibold">Tgl. Daftar</th>
-                            <th class="px-4 py-3 text-center font-semibold">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($users as $index => $user)
-                            <tr class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
-                                <td class="px-4 py-3">{{ $index + 1 }}</td>
-                                <td class="px-4 py-3">{{ $user->name }}</td>
-                                <td class="px-4 py-3">{{ $user->email }}</td>
-                                <td class="px-4 py-3">
-                                    <span class="px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded text-xs font-semibold">
-                                        {{ $user->role?->name ?? '-' }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3">{{ $user->created_at?->format('Y-m-d') ?? '-' }}</td>
-                                <td class="px-4 py-3">
-                                    <div class="flex justify-center gap-2">
-                                        <button @click="editUser(@js(['id' => $user->id, 'name' => $user->name, 'email' => $user->email, 'role_id' => $user->role_id]))" class="btn btn-sm btn-outline-primary">
-                                            Edit
-                                        </button>
-                                        <button @click="openDeleteUserModal({{ $user->id }})" class="btn btn-sm btn-outline-danger">
-                                            Hapus
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="6" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">Belum ada data user.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
         </x-common.component-card>
 
         <!-- Modal Create/Edit -->
         <div x-show="openModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50" @click.self="openModal = false">
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-96 max-h-96 overflow-y-auto">
                 <h2 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
-                    <span x-show="!editingId">Tambah Anggota Baru</span>
-                    <span x-show="editingId">Edit Anggota</span>
+                    <span x-show="!editingId">Tambah Siswa</span>
+                    <span x-show="editingId">Edit Siswa</span>
                 </h2>
                 
-                <form x-ref="memberForm" method="POST" enctype="multipart/form-data" :action="editingId ? updateUrlBase + editingId : createUrl">
+                <form x-ref="memberForm" method="POST" :action="editingId ? updateUrlBase + editingId : createUrl">
                     @csrf
                     <input type="hidden" name="_method" :value="editingId ? 'PUT' : 'POST'">
 
                     <div class="space-y-3">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Anggota</label>
-                            <input x-model="formData.name" name="name" type="text" placeholder="Masukkan nama anggota" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama Siswa</label>
+                            <input x-model="formData.name" name="name" type="text" placeholder="Masukkan nama siswa" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
                             <input x-model="formData.email" name="email" type="email" placeholder="Masukkan email" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Foto Anggota</label>
-                            <input name="photo" type="file" accept="image/*" class="w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100" />
-                            <p class="mt-1 text-xs text-gray-500">Kosongkan jika tidak ingin mengubah foto.</p>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">NIS</label>
+                            <input x-model="formData.nis" name="nis" type="text" placeholder="Masukkan NIS" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kelas</label>
+                            <select x-model="formData.kelas" name="kelas" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="">Pilih Kelas</option>
+                                <option value="X">Kelas X</option>
+                                <option value="XI">Kelas XI</option>
+                                <option value="XII">Kelas XII</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jurusan</label>
+                            <select x-model="formData.jurusan" name="jurusan" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                <option value="">Pilih Jurusan</option>
+                                <option value="RPL">Rekayasa Perangkat Lunak</option>
+                                <option value="TKJ">Teknik Komputer Jaringan</option>
+                                <option value="MM">Multimedia</option>
+                                <option value="AK">Akuntansi</option>
+                            </select>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">No. Telepon</label>

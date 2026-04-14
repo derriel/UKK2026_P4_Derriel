@@ -6,7 +6,7 @@
             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <a href="{{ route('welcome') }}" class="text-xl font-bold tracking-tight text-white">PerpustakaanKu</a>
-                    <p class="mt-1 text-sm text-slate-300">Kelola profil dan pengaturan akun anggota Anda.</p>
+                    <p class="mt-1 text-sm text-slate-300">Kelola profil dan pengaturan akun siswa Anda.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-3">
                     <a href="{{ route('member.books.index') }}" class="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white hover:bg-white/20">Katalog Buku</a>
@@ -30,7 +30,7 @@
                     <div class="space-y-6">
                         <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                             <div>
-                                <h1 class="text-3xl font-bold text-white">Profil Anggota</h1>
+                                <h1 class="text-3xl font-bold text-white">Profil Siswa</h1>
                                 <p class="mt-2 text-sm text-slate-300">Perbarui data akun, password, dan foto profil kapan saja.</p>
                             </div>
                             <a href="{{ route('member.borrowings.index') }}" class="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 shadow-lg shadow-black/20 hover:bg-slate-100">Lihat Peminjaman</a>
@@ -50,7 +50,7 @@
                                     </div>
                                     <div>
                                         <span class="block text-slate-400">Role</span>
-                                        <p class="mt-1 text-white">{{ optional(auth()->user()->role)->name ?? 'Member' }}</p>
+                                        <p class="mt-1 text-white">{{ optional(auth()->user()->role)->name ?? 'Siswa' }}</p>
                                     </div>
                                 </div>
                             </div>

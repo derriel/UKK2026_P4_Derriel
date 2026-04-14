@@ -14,9 +14,9 @@
                 title: '',
                 author_id: '',
                 publisher_id: '',
+                category_id: '',
                 isbn: '',
                 publication_year: '',
-                category: '',
                 description: '',
                 stock: '',
             },
@@ -27,9 +27,9 @@
                     title: '',
                     author_id: '',
                     publisher_id: '',
+                    category_id: '',
                     isbn: '',
                     publication_year: '',
-                    category: '',
                     description: '',
                     stock: '',
                 };
@@ -42,9 +42,9 @@
                     title: book.title,
                     author_id: book.author_id,
                     publisher_id: book.publisher_id,
+                    category_id: book.category_id,
                     isbn: book.isbn,
                     publication_year: book.publication_year,
-                    category: book.category,
                     description: book.description,
                     stock: book.stock,
                 };
@@ -83,6 +83,7 @@
                         <th class="px-4 py-3 text-left font-semibold">Judul Buku</th>
                         <th class="px-4 py-3 text-left font-semibold">Pengarang</th>
                         <th class="px-4 py-3 text-left font-semibold">Penerbit</th>
+                        <th class="px-4 py-3 text-left font-semibold">Kategori</th>
                         <th class="px-4 py-3 text-left font-semibold">ISBN</th>
                         <th class="px-4 py-3 text-left font-semibold">Stok</th>
                         <th class="px-4 py-3 text-center font-semibold">Aksi</th>
@@ -102,6 +103,7 @@
                         <td class="px-4 py-3">{{ $buku->title }}</td>
                         <td class="px-4 py-3">{{ $buku->author?->name ?? '-' }}</td>
                         <td class="px-4 py-3">{{ $buku->publisher?->name ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $buku->category?->name ?? $buku->category ?? '-' }}</td>
                         <td class="px-4 py-3">{{ $buku->isbn }}</td>
                         <td class="px-4 py-3">
                             <span class="px-2 py-1 bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300 rounded text-xs font-semibold">
@@ -110,7 +112,7 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex justify-center gap-2">
-                                <button @click="editBook(@js(['id' => $buku->id, 'title' => $buku->title, 'author_id' => $buku->author_id, 'isbn' => $buku->isbn, 'publisher_id' => $buku->publisher_id, 'publication_year' => $buku->publication_year, 'category' => $buku->category, 'description' => $buku->description, 'stock' => $buku->stock]))" class="btn btn-sm btn-outline-primary">
+                                <button @click="editBook(@js(['id' => $buku->id, 'title' => $buku->title, 'author_id' => $buku->author_id, 'publisher_id' => $buku->publisher_id, 'category_id' => $buku->category_id, 'isbn' => $buku->isbn, 'publication_year' => $buku->publication_year, 'description' => $buku->description, 'stock' => $buku->stock]))" class="btn btn-sm btn-outline-primary">
                                     Edit
                                 </button>
                                 <button @click="openDeleteModal({{ $buku->id }})" class="btn btn-sm btn-outline-danger">
@@ -159,7 +161,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tahun Terbit</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Penerbit</label>
                         <select name="publisher_id" x-model="formData.publisher_id" class="w-full px-3 py-2 border rounded-lg">
                             <option value="">Pilih Penerbit</option>
                             @foreach($publishers as $publisher)
@@ -171,7 +173,18 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kategori</label>
-                        <input x-model="formData.category" name="category" type="text" placeholder="Masukkan kategori" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                        <select name="category_id" x-model="formData.category_id" class="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Pilih Kategori</option>
+                            @foreach($categories as $category)
+                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                {{ $category->name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ISBN</label>
+                        <input x-model="formData.isbn" name="isbn" type="text" placeholder="Masukkan ISBN" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deskripsi</label>

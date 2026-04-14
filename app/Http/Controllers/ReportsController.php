@@ -45,7 +45,7 @@ class ReportsController extends Controller
             return (object) [
                 'id' => $book->id,
                 'judul' => $book->title,
-                'pengarang' => $book->author,
+                'pengarang' => optional($book->author)->name ?? $book->author,
                 'stok_awal' => $book->stock,
                 'terpinjam' => $borrowed,
                 'stok_akhir' => $stokAkhir,

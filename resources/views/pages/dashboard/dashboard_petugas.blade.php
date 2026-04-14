@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 mb-8">
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 mb-8">
         <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
             <div class="flex items-start justify-between gap-4">
                 <div>
@@ -58,17 +58,83 @@
         <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
             <div class="flex items-start justify-between gap-4">
                 <div>
-                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Anggota Terdaftar</p>
-                    <h3 class="mt-3 text-3xl font-bold text-gray-900 dark:text-white">{{ $totalMembers }}</h3>
-                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Jumlah anggota perpustakaan</p>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pengajuan Pinjaman</p>
+                    <h3 class="mt-3 text-3xl font-bold text-gray-900 dark:text-white">{{ $totalBorrowRequests }}</h3>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Permintaan peminjaman yang menunggu aksi</p>
                 </div>
-                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-yellow-100 dark:bg-yellow-900/30">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 4.5C8.41015 4.5 5.5 7.41015 5.5 11C5.5 14.5899 8.41015 17.5 12 17.5C15.5899 17.5 18.5 14.5899 18.5 11C18.5 7.41015 15.5899 4.5 12 4.5Z" stroke="currentColor" stroke-width="2" class="stroke-yellow-600 dark:stroke-yellow-400"/>
-                        <path d="M12 13.5C10.6193 13.5 9.5 12.3807 9.5 11C9.5 9.61929 10.6193 8.5 12 8.5C13.3807 8.5 14.5 9.61929 14.5 11C14.5 12.3807 13.3807 13.5 12 13.5Z" stroke="currentColor" stroke-width="2" class="stroke-yellow-600 dark:stroke-yellow-400"/>
+                        <path d="M12 5V11L15 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-blue-600 dark:stroke-blue-400" />
+                        <path d="M19 12C19 16.4183 15.4183 20 11 20C6.58172 20 3 16.4183 3 12C3 7.58172 6.58172 4 11 4C12.6582 4 14.2321 4.59752 15.423 5.59342" stroke="currentColor" stroke-width="2" class="stroke-blue-600 dark:stroke-blue-400" />
                     </svg>
                 </div>
             </div>
+        </div>
+
+        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Pengajuan Pengembalian</p>
+                    <h3 class="mt-3 text-3xl font-bold text-gray-900 dark:text-white">{{ $totalReturnRequests }}</h3>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Pengembalian buku yang menunggu konfirmasi</p>
+                </div>
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-violet-100 dark:bg-violet-900/30">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 7L12 11L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-violet-600 dark:stroke-violet-400" />
+                        <path d="M5 17V15C5 12.7909 6.79086 11 9 11H15C17.2091 11 19 12.7909 19 15V17" stroke="currentColor" stroke-width="2" class="stroke-violet-600 dark:stroke-violet-400" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-8 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Data Siswa</h2>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Menampilkan data siswa dengan status online/offline.</p>
+            </div>
+            <button class="btn btn-primary inline-flex items-center gap-2">
+                <span>Refresh</span>
+            </button>
+        </div>
+
+        <div class="mt-6 overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm text-left text-gray-600 dark:divide-gray-700 dark:text-gray-300">
+                <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900 dark:text-gray-400">
+                    <tr>
+                        <th class="px-4 py-3">Nama</th>
+                        <th class="px-4 py-3">Email</th>
+                        <th class="px-4 py-3">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700" id="siswa-tbody">
+                    @forelse ($memberStatuses as $member)
+                    <tr>
+                        <td class="px-4 py-4 text-gray-900 dark:text-white">{{ $member['name'] }}</td>
+                        <td class="px-4 py-4">{{ $member['email'] }}</td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold
+{{ $member['status'] === 'Online'
+    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+    : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300' }}">
+
+                                <span class="w-2 h-2 rounded-full
+    {{ $member['status'] === 'Online' ? 'bg-green-400' : 'bg-gray-400' }}"></span>
+
+                                {{ $member['status'] }}
+                            </span>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td class="px-4 py-6 text-center text-gray-500 dark:text-gray-400" colspan="3">
+                            Belum ada data siswa yang tersedia.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
