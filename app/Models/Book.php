@@ -21,8 +21,9 @@ class Book extends Model
         'category_id',      // Kategori buku
         'isbn',            // ISBN buku
         'stock',           // Stok buku
+        'fine_per_day',    // Denda per hari keterlambatan
+        'is_active',       // Status aktif buku
         'description',     // Deskripsi buku
-        'category',        // Kategori buku lama (fallback)
         'publication_year', // Tahun terbit
         'cover_image',     // Gambar sampul buku
     ];

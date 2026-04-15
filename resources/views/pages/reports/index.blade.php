@@ -1,5 +1,13 @@
 @extends('layouts.app')
 
+<!-- ============================================================
+     HALAMAN LAPORAN - Perpustakaan
+     Fitur:
+     - Ringkasan total buku, anggota, peminjaman aktif, buku tersedia
+     - Laporan peminjaman bulanan
+     - Laporan stok buku
+     - Anggota paling aktif meminjam
+============================================================= -->
 @section('content')
     <x-common.page-breadcrumb pageTitle="Laporan" />
     <div class="space-y-6">
@@ -36,46 +44,47 @@
 
         <!-- Laporan Peminjaman -->
         <x-common.component-card title="Laporan Peminjaman Bulanan">
-            <div class="mb-4 flex gap-4">
+            <!-- Form Filter Laporan -->
+            <form action="{{ route('reports.filter') }}" method="GET" class="mb-4 flex gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Bulan</label>
-                    <select class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <select name="month" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         <option value="">-- Pilih Bulan --</option>
-                        <option value="01">Januari</option>
-                        <option value="02">Februari</option>
-                        <option value="03">Maret</option>
-                        <option value="04">April</option>
-                        <option value="05">Mei</option>
-                        <option value="06">Juni</option>
-                        <option value="07">Juli</option>
-                        <option value="08">Agustus</option>
-                        <option value="09">September</option>
-                        <option value="10">Oktober</option>
-                        <option value="11">November</option>
-                        <option value="12">Desember</option>
+                        <option value="01" {{ request('month', date('m')) == '01' ? 'selected' : '' }}>Januari</option>
+                        <option value="02" {{ request('month', date('m')) == '02' ? 'selected' : '' }}>Februari</option>
+                        <option value="03" {{ request('month', date('m')) == '03' ? 'selected' : '' }}>Maret</option>
+                        <option value="04" {{ request('month', date('m')) == '04' ? 'selected' : '' }}>April</option>
+                        <option value="05" {{ request('month', date('m')) == '05' ? 'selected' : '' }}>Mei</option>
+                        <option value="06" {{ request('month', date('m')) == '06' ? 'selected' : '' }}>Juni</option>
+                        <option value="07" {{ request('month', date('m')) == '07' ? 'selected' : '' }}>Juli</option>
+                        <option value="08" {{ request('month', date('m')) == '08' ? 'selected' : '' }}>Agustus</option>
+                        <option value="09" {{ request('month', date('m')) == '09' ? 'selected' : '' }}>September</option>
+                        <option value="10" {{ request('month', date('m')) == '10' ? 'selected' : '' }}>Oktober</option>
+                        <option value="11" {{ request('month', date('m')) == '11' ? 'selected' : '' }}>November</option>
+                        <option value="12" {{ request('month', date('m')) == '12' ? 'selected' : '' }}>Desember</option>
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tahun</label>
-                    <select class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <select name="year" class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         <option value="">-- Pilih Tahun --</option>
-                        <option value="2023" selected>2023</option>
-                        <option value="2024">2024</option>
-                        <option value="2025">2025</option>
+                        <option value="2024" {{ request('year', date('Y')) == '2024' ? 'selected' : '' }}>2024</option>
+                        <option value="2025" {{ request('year', date('Y')) == '2025' ? 'selected' : '' }}>2025</option>
+                        <option value="2026" {{ request('year', date('Y')) == '2026' ? 'selected' : '' }}>2026</option>
                     </select>
                 </div>
                 <div class="flex items-end gap-2">
-                    <button class="btn btn-primary">
+                    <button type="submit" class="btn btn-primary">
                         Tampilkan
                     </button>
-                    <button class="btn btn-success">
-                        <i class="bi bi-plus"></i>Buat Laporan
-                    </button>
-                    <button class="btn btn-secondary">
-                        Cetak
+                    <a href="{{ route('reports.export') }}?month={{ request('month', date('m')) }}&year={{ request('year', date('Y')) }}" class="btn btn-success">
+                        <i class="bi bi-download"></i> Export
+                    </a>
+                    <button type="button" onclick="window.print()" class="btn btn-secondary">
+                        <i class="bi bi-printer"></i> Cetak
                     </button>
                 </div>
-            </div>
+            </form>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-gray-700 dark:text-gray-300">

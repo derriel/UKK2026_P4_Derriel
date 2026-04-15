@@ -21,6 +21,21 @@ class SiswaController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        return view('pages.members.create.index', [
+            'title' => 'Tambah Siswa',
+        ]);
+    }
+
+    public function edit(Siswa $siswa)
+    {
+        return view('pages.members.edit.index', [
+            'title' => 'Edit Siswa',
+            'siswa' => $siswa,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

@@ -32,6 +32,11 @@ class BorrowingController extends Controller
         ]);
     }
 
+    public function showBorrowForm()
+    {
+        return view('pages.member.create'); // sesuaikan dengan view kamu
+    }
+
     public function memberIndex()
     {
         $borrowings = Borrowing::with('book')
@@ -46,6 +51,12 @@ class BorrowingController extends Controller
 
     public function borrow(Request $request, Book $book)
     {
+        $validated = $request->validate([
+            'days' => ['required', 'integer', 'min:1', 'max:14'],
+        ]);
+
+        $days = $validated['days'];
+
         if ($book->stock < 1) {
             return back()->with('error', 'Buku sedang habis stok.');
         }
@@ -53,21 +64,24 @@ class BorrowingController extends Controller
         if (Borrowing::where('book_id', $book->id)
             ->where('user_id', Auth::id())
             ->whereNull('returned_at')
-            ->exists()) {
+            ->exists()
+        ) {
             return back()->with('error', 'Anda sudah mengajukan atau meminjam buku ini dan belum menyelesaikannya.');
         }
+
+        $dueDate = now()->addDays((int)$days)->toDateString();
 
         Borrowing::create([
             'user_id' => Auth::id(),
             'book_id' => $book->id,
             'role_id' => Auth::user()->role_id,
             'borrow_date' => now()->toDateString(),
-            'due_date' => now()->addDays(7)->toDateString(),
+            'due_date' => $dueDate,
             'status' => 'requested',
-            'notes' => 'Pengajuan pinjaman dikirim ke petugas/admin.',
+            'notes' => 'Pengajuan pinjaman dikirim ke petugas/admin. Durasi: ' . (int)$days . ' hari.',
         ]);
 
-        return back()->with('success', 'Pengajuan peminjaman buku telah dikirim ke petugas/admin.');
+        return back()->with('success', 'Pengajuan peminjaman buku telah dikirim ke petugas/admin. Jatuh tempo: ' . \Carbon\Carbon::parse($dueDate)->format('d/m/Y'));
     }
 
     public function memberReturn(Borrowing $borrowing)
@@ -88,6 +102,20 @@ class BorrowingController extends Controller
         return back()->with('success', 'Pengajuan pengembalian buku telah dikirim ke petugas/admin.');
     }
 
+    public function create()
+    {
+        $users = \App\Models\User::all();
+        $books = \App\Models\Book::all();
+        $roles = \App\Models\Role::all();
+
+        return view('pages.borrowing-returns.create.index', [
+            'title' => 'Tambah Peminjaman',
+            'users' => $users,
+            'books' => $books,
+            'roles' => $roles,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -103,6 +131,21 @@ class BorrowingController extends Controller
         Borrowing::create($validated);
 
         return redirect()->route('borrowing-returns.index')->with('success', 'Peminjaman berhasil ditambahkan.');
+    }
+
+    public function edit(Borrowing $borrowing)
+    {
+        $users = \App\Models\User::all();
+        $books = \App\Models\Book::all();
+        $roles = \App\Models\Role::all();
+
+        return view('pages.borrowing-returns.edit.index', [
+            'title' => 'Edit Peminjaman',
+            'borrowing' => $borrowing,
+            'users' => $users,
+            'books' => $books,
+            'roles' => $roles,
+        ]);
     }
 
     public function update(Request $request, Borrowing $borrowing)
@@ -184,12 +227,36 @@ class BorrowingController extends Controller
             $book->increment('stock');
         }
 
+        $fine = 0;
+        if (now()->greaterThan($borrowing->due_date)) {
+            $daysLate = (int)now()->diffInDays($borrowing->due_date);
+            $finePerDay = $borrowing->book->fine_per_day ?? 5000;
+            $fine = $daysLate * $finePerDay;
+        }
+
         $borrowing->update([
             'status' => 'returned',
             'returned_at' => now(),
+            'fine' => $fine,
+            'fine_status' => $fine > 0 ? 'unpaid' : 'paid',
+            'paid_at' => $fine > 0 ? null : now(),
             'notes' => 'Pengajuan pengembalian disetujui oleh petugas/admin.',
         ]);
 
-        return redirect()->route('borrowing-returns.index')->with('success', 'Pengembalian berhasil disetujui.');
+        return redirect()->route('borrowing-returns.index')->with('success', 'Pengembalian berhasil disetujui.' . ($fine > 0 ? ' Denda: Rp ' . number_format($fine, 0, ',', '.') : ''));
+    }
+
+    public function payFine(Borrowing $borrowing)
+    {
+        if ($borrowing->fine_status !== 'unpaid' || $borrowing->fine <= 0) {
+            return back()->with('error', 'Tidak ada denda yang perlu dibayar.');
+        }
+
+        $borrowing->update([
+            'fine_status' => 'paid',
+            'paid_at' => now(),
+        ]);
+
+        return back()->with('success', 'Denda berhasil dibayar.');
     }
 }

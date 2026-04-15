@@ -27,13 +27,60 @@ class BookController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        $authors = Author::all();
+        $publishers = Publisher::all();
+        $categories = Category::all();
+
+        return view('pages.books.create.index', [
+            'title' => 'Tambah Buku',
+            'authors' => $authors,
+            'publishers' => $publishers,
+            'categories' => $categories,
+        ]);
+    }
+
+    public function edit(Book $book)
+    {
+        $authors = Author::all();
+        $publishers = Publisher::all();
+        $categories = Category::all();
+
+        return view('pages.books.edit.index', [
+            'title' => 'Edit Buku',
+            'book' => $book,
+            'authors' => $authors,
+            'publishers' => $publishers,
+            'categories' => $categories,
+        ]);
+    }
+
     public function catalog()
     {
-        $books = Book::with(['author', 'publisher', 'category'])->get();
+        $search = request('search');
+        
+        $books = Book::with(['author', 'publisher', 'category']);
+        
+        if ($search) {
+            $books->where(function($query) use ($search) {
+                $query->where('title', 'like', '%' . $search . '%')
+                    ->orWhereHas('author', function($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('publisher', function($q) use ($search) {
+                        $q->where('name', 'like', '%' . $search . '%');
+                    })
+                    ->orWhere('isbn', 'like', '%' . $search . '%');
+            });
+        }
+        
+        $books = $books->get();
 
         return view('pages.member.books', [
             'title' => 'Katalog Buku',
             'books' => $books,
+            'search' => $search,
         ]);
     }
 
@@ -58,12 +105,20 @@ class BookController extends Controller
             'publication_year' => ['nullable', 'integer', 'min:1000', 'max:' . (date('Y') + 1)],
             'description' => ['nullable', 'string', 'max:1000'],
             'stock' => ['required', 'integer', 'min:0'],
+            'fine_per_day' => ['nullable', 'integer', 'min:0'],
+            'is_active' => ['nullable', 'boolean'],
             'cover_image' => ['nullable', 'image', 'max:2048'],
         ]);
 
         if ($request->hasFile('cover_image')) {
             $validated['cover_image'] = $request->file('cover_image')->store('books', 'public');
         }
+
+        if (!isset($validated['fine_per_day'])) {
+            $validated['fine_per_day'] = 5000;
+        }
+        
+        $validated['is_active'] = $request->has('is_active') ? true : true;
 
         Book::create($validated);
 
@@ -81,6 +136,8 @@ class BookController extends Controller
             'publication_year' => ['nullable', 'integer', 'min:1000', 'max:' . (date('Y') + 1)],
             'description' => ['nullable', 'string', 'max:1000'],
             'stock' => ['required', 'integer', 'min:0'],
+            'fine_per_day' => ['nullable', 'integer', 'min:0'],
+            'is_active' => ['nullable', 'boolean'],
             'cover_image' => ['nullable', 'image', 'max:2048'],
         ]);
 
@@ -102,6 +159,7 @@ class BookController extends Controller
 
         return redirect()->route('books.index')->with('success', 'Buku berhasil dihapus.');
     }
+
     public function search(Request $request)
     {
         $query = $request->input('query');

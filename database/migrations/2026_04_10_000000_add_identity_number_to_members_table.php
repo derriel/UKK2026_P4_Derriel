@@ -11,9 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('members', function (Blueprint $table) {
-            $table->string('identity_number')->unique()->nullable()->after('member_number');
-        });
+        // Cek apakah tabel members ada dan kolom belum ada
+        if (Schema::hasTable('members') && !Schema::hasColumn('members', 'identity_number')) {
+            Schema::table('members', function (Blueprint $table) {
+                $table->string('identity_number')->unique()->nullable();
+            });
+        }
+        
+        // Cek apakah tabel siswa ada dan kolom belum ada
+        if (Schema::hasTable('siswa') && !Schema::hasColumn('siswa', 'identity_number')) {
+            Schema::table('siswa', function (Blueprint $table) {
+                $table->string('identity_number')->unique()->nullable();
+            });
+        }
     }
 
     /**

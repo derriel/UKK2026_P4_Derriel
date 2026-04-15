@@ -4,12 +4,15 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-6">
+    
+    <!-- Bagian Header Halaman Dashboard -->
     <div class="mb-8">
         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard Petugas</h1>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Ringkasan aktivitas perpustakaan dan statistik terkini.</p>
             </div>
+            <!-- Tombol Segarkan Halaman -->
             <div class="flex flex-wrap items-center gap-3">
                 <a href="{{ route('dashboard_petugas') }}"
                     class="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800">
@@ -22,7 +25,11 @@
         </div>
     </div>
 
+    <!-- Bagian Statistik Utama (4 Kolom) -->
+    <!-- Menampilkan: Total Buku, Peminjaman Aktif, Pengajuan Pinjaman, Pengajuan Pengembalian -->
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-4 mb-8">
+        
+        <!-- Card 1: Total Buku -->
         <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
             <div class="flex items-start justify-between gap-4">
                 <div>
@@ -39,6 +46,7 @@
             </div>
         </div>
 
+        <!-- Card 2: Peminjaman Aktif -->
         <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
             <div class="flex items-start justify-between gap-4">
                 <div>
@@ -55,6 +63,7 @@
             </div>
         </div>
 
+        <!-- Card 3: Pengajuan Pinjaman -->
         <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
             <div class="flex items-start justify-between gap-4">
                 <div>
@@ -71,6 +80,7 @@
             </div>
         </div>
 
+        <!-- Card 4: Pengajuan Pengembalian -->
         <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
             <div class="flex items-start justify-between gap-4">
                 <div>
@@ -88,15 +98,89 @@
         </div>
     </div>
 
+    <!-- Bagian Kelola Peminjaman & Pengembalian -->
+    <!-- Tabel untuk menyetujui/menolak pengajuan pinjam dan kembali -->
+    <div class="mt-8 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
+        <div class="flex items-center justify-between gap-4">
+            <div>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Kelola Peminjaman & Pengembalian</h2>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Setetujui pengajuan peminjaman dan pengembalian buku.</p>
+            </div>
+        </div>
+
+        <div class="mt-6 overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm text-left text-gray-600 dark:divide-gray-700 dark:text-gray-300">
+                <thead class="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900 dark:text-gray-400">
+                    <tr>
+                        <th class="px-4 py-3">Nama User</th>
+                        <th class="px-4 py-3">Buku</th>
+                        <th class="px-4 py-3">Tanggal Pinjam</th>
+                        <th class="px-4 py-3">Jatuh Tempo</th>
+                        <th class="px-4 py-3">Status</th>
+                        <th class="px-4 py-3">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    @php
+                        $borrowings = \App\Models\Borrowing::with(['user', 'book'])->whereIn('status', ['requested', 'return_requested'])->orderBy('created_at', 'desc')->limit(10)->get();
+                    @endphp
+                    @forelse($borrowings as $borrowing)
+                    <tr>
+                        <td class="px-4 py-4 text-gray-900 dark:text-white">{{ $borrowing->user->name ?? '-' }}</td>
+                        <td class="px-4 py-4">{{ $borrowing->book->title ?? '-' }}</td>
+                        <td class="px-4 py-4">{{ $borrowing->borrow_date ? \Carbon\Carbon::parse($borrowing->borrow_date)->format('d/m/Y') : '-' }}</td>
+                        <td class="px-4 py-4">{{ $borrowing->due_date ? \Carbon\Carbon::parse($borrowing->due_date)->format('d/m/Y') : '-' }}</td>
+                        <td class="px-4 py-4">
+                            @if($borrowing->status === 'requested')
+                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
+                                Menunggu Pinjaman
+                            </span>
+                            @elseif($borrowing->status === 'return_requested')
+                            <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300">
+                                Menunggu Pengembalian
+                            </span>
+                            @endif
+                        </td>
+                        <td class="px-4 py-4">
+                            <div class="flex gap-2">
+                                @if($borrowing->status === 'requested')
+                                <form action="{{ route('borrowing-returns.approveBorrow', $borrowing->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-primary" onclick="return confirm('Setujui peminjaman ini?')">
+                                        Setuju
+                                    </button>
+                                </form>
+                                @elseif($borrowing->status === 'return_requested')
+                                <form action="{{ route('borrowing-returns.approveReturn', $borrowing->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Setujui pengembalian ini?')">
+                                        Setuju
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td class="px-4 py-6 text-center text-gray-500 dark:text-gray-400" colspan="6">
+                            Tidak ada pengajuan peminjaman atau pengembalian.
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bagian Data Siswa -->
+    <!-- Menampilkan daftar siswa dengan status online/offline -->
     <div class="mt-8 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
         <div class="flex items-center justify-between gap-4">
             <div>
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Data Siswa</h2>
                 <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">Menampilkan data siswa dengan status online/offline.</p>
             </div>
-            <button class="btn btn-primary inline-flex items-center gap-2">
-                <span>Refresh</span>
-            </button>
         </div>
 
         <div class="mt-6 overflow-x-auto">

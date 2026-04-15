@@ -20,6 +20,9 @@ class Borrowing extends Model
         'returned_at', // Tanggal aktual pengembalian
         'status',      // Status peminjaman (misal: borrowed, returned)
         'notes',       // Catatan tambahan
+        'fine',        // Denda keterlambatan
+        'fine_status', // Status denda (unpaid/paid)
+        'paid_at',     // Tanggal pembayaran denda
     ];
 
     // Cast atribut ke tipe data tertentu
@@ -28,6 +31,8 @@ class Borrowing extends Model
         'due_date' => 'date',        // Cast ke objek date
         'return_date' => 'date',     // Cast ke objek date
         'returned_at' => 'datetime', // Cast ke objek datetime
+        'fine' => 'decimal:2',      // Cast fine ke decimal
+        'paid_at' => 'datetime',    // Cast paid_at ke datetime
     ];
 
     /**

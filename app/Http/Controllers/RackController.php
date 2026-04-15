@@ -17,11 +17,25 @@ class RackController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        return view('pages.racks.create.index', [
+            'title' => 'Tambah Rak',
+        ]);
+    }
+
+    public function edit(Rack $rack)
+    {
+        return view('pages.racks.edit.index', [
+            'title' => 'Edit Rak',
+            'rack' => $rack,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'location' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
         ]);
 
@@ -34,7 +48,6 @@ class RackController extends Controller
     {
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'location' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:1000'],
         ]);
 

@@ -9,7 +9,6 @@ class MenuHelper
     // Fungsi untuk mendapatkan item menu utama
     public static function getMainNavItems()
     {
-        // Return array item menu utama dengan icon, name, dan path
         return [
             [
                 'icon' => 'dashboard',
@@ -37,6 +36,11 @@ class MenuHelper
                 'path' => '/categories',
             ],
             [
+                'icon' => 'tables',
+                'name' => 'Kelola Rak',
+                'path' => '/racks',
+            ],
+            [
                 'icon' => 'user-profile',
                 'name' => 'Data Users',
                 'path' => '/users',
@@ -47,11 +51,6 @@ class MenuHelper
                 'path' => '/members',
             ],
             [
-                'icon' => 'settings',
-                'name' => 'App Config',
-                'path' => '/app-config',
-            ],
-            [
                 'icon' => 'task',
                 'name' => 'Kelola Peminjaman & Pengembalian',
                 'path' => '/borrowing-returns',
@@ -60,6 +59,11 @@ class MenuHelper
                 'icon' => 'charts',
                 'name' => 'Laporan',
                 'path' => '/reports',
+            ],
+            [
+                'icon' => 'settings',
+                'name' => 'App Config',
+                'path' => '/app-config',
             ],
         ];
     }
@@ -72,9 +76,19 @@ class MenuHelper
                 'path' => '/dashboard-petugas',
             ],
             [
+                'icon' => 'task',
+                'name' => 'Kelola Peminjaman & Pengembalian',
+                'path' => '/borrowing-returns',
+            ],
+            [
                 'icon' => 'user-profile',
                 'name' => 'Kelola Data Siswa',
                 'path' => '/members',
+            ],
+            [
+                'icon' => 'charts',
+                'name' => 'Laporan',
+                'path' => '/reports',
             ],
         ];
     }

@@ -40,10 +40,10 @@ class AuthController extends Controller
             $roleName = strtolower(optional(Auth::user()->role)->name ?? 'guest');
             
             $homeRoute = match($roleName) {
-                'admin' => 'dashboard',                  // Admin ke dashboard admin (ecommerce)
-                'petugas' => 'dashboard_petugas',        // Petugas ke dashboard petugas
-                'member' => 'welcome',                   // Member ke halaman welcome
-                default => 'dashboard',
+                'admin' => 'dashboard',
+                'librarian', 'petugas' => 'dashboard_petugas',
+                'member' => 'welcome',
+                default => 'welcome',
             };
 
             return redirect()->route($homeRoute)->with('success', 'Berhasil login!');

@@ -17,6 +17,21 @@ class CategoryController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        return view('pages.categories.create.index', [
+            'title' => 'Tambah Kategori',
+        ]);
+    }
+
+    public function edit(Category $category)
+    {
+        return view('pages.categories.edit.index', [
+            'title' => 'Edit Kategori',
+            'category' => $category,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

@@ -1,11 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
+<!-- ============================================
+     DASHBOARD ADMIN - Perpustakaan
+     Menampilkan statistik lengkap untuk admin
+============================================= -->
 @php
 $chartLabels = collect($topBorrowedBooks)->pluck('title')->toJson();
 $chartValues = collect($topBorrowedBooks)->pluck('borrow_count')->toJson();
 @endphp
 
+<!-- Bagian Statistik Utama -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
   <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
     <div class="flex items-start justify-between gap-4">
@@ -72,6 +77,8 @@ $chartValues = collect($topBorrowedBooks)->pluck('borrow_count')->toJson();
   </div>
 </div>
 
+<!-- Bagian Statistik Tambahan (Pengajuan) -->
+<!-- Card 5: Pengajuan Pinjaman, Card 6: Pengajuan Pengembalian -->
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 mb-8">
   <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
     <div class="flex items-start justify-between gap-4">
@@ -105,6 +112,8 @@ $chartValues = collect($topBorrowedBooks)->pluck('borrow_count')->toJson();
   </div>
 </div>
 
+<!-- Bagian Grafik Peminjaman -->
+<!-- Menampilkan grafik buku paling sering dipinjam -->
 <div class="grid grid-cols-1 xl:grid-cols-8 gap-4 md:gap-6">
   <div class="xl:col-span-8 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
     <div class="flex items-center justify-between gap-4">

@@ -24,6 +24,25 @@ class UserController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        $roles = Role::orderBy('name')->get();
+        return view('pages.users.create.index', [
+            'title' => 'Tambah User',
+            'roles' => $roles,
+        ]);
+    }
+
+    public function edit(User $user)
+    {
+        $roles = Role::orderBy('name')->get();
+        return view('pages.users.edit.index', [
+            'title' => 'Edit User',
+            'user' => $user,
+            'roles' => $roles,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([

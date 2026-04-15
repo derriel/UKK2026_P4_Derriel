@@ -1,141 +1,226 @@
 @extends('layouts.fullscreen-layout')
+@use('Illuminate\Support\Facades\Storage')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-sky-600 via-cyan-500 to-indigo-600 text-slate-900 dark:text-slate-100">
-    <div class="px-4 py-5 mx-auto max-w-7xl sm:px-6 lg:px-8">
-        <header class="flex items-center justify-between gap-4">
-            <div>
-                <a href="{{ route('welcome') }}" class="text-xl font-bold tracking-tight text-white">PerpustakaanKu</a>
-                <p class="mt-1 text-sm text-slate-200">Aplikasi perpustakaan digital untuk anggota</p>
+<div class="min-h-screen bg-white">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                <div class="flex items-center gap-8">
+                    <a href="{{ route('welcome') }}" class="text-2xl font-bold text-gray-900">PerpustakaanKu</a>
+                    <nav class="hidden md:flex items-center gap-6">
+                        <a href="{{ route('member.books.index') }}" class="text-sm font-medium text-gray-700 hover:text-orange-600">Buku</a>
+                        <a href="{{ route('member.borrowings.index') }}" class="text-sm font-medium text-gray-700 hover:text-orange-600">Pinjaman Saya</a>
+                    </nav>
+                </div>
+
+                <div class="flex-1 max-w-xl mx-4">
+                    <form action="{{ route('member.books.index') }}" method="GET" class="relative">
+                        <input type="text" name="search" placeholder="Cari judul buku, pengarang, ISBN..." value="{{ request('search') }}" class="w-full h-10 pl-4 pr-12 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500">
+                        <button type="submit" class="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center rounded bg-orange-600 text-white hover:bg-orange-700">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    @auth
+                    <div class="flex items-center gap-2">
+                        <div class="h-8 w-8 rounded-full bg-gray-200 overflow-hidden">
+                            @if(Auth::user()->photo)
+                            <img src="{{ Storage::url(Auth::user()->photo) }}" alt="User" class="h-full w-full object-cover">
+                            @else
+                            <div class="h-full w-full flex items-center justify-center">
+                                <i class="fa-regular fa-circle-user text-lg text-gray-500"></i>
+                            </div>
+                            @endif
+                        </div>
+                        <span class="hidden sm:block text-sm font-medium text-gray-700">{{ auth()->user()->name }}</span>
+                    </div>
+                    @endauth
+                </div>
             </div>
-            <div class="flex items-center gap-3">
-                <a href="{{ route('member.books.index') }}" class="px-4 py-2 text-sm font-semibold text-slate-900 rounded-full bg-white/90 hover:bg-white">Jelajahi Buku</a>
-                <div class="relative group" tabindex="0">
-                    <button type="button" class="grid h-11 w-11 place-items-center rounded-full bg-white/90 text-slate-900 shadow-lg shadow-slate-950/10 transition hover:bg-white">
-                        <i class="fa-regular fa-circle-user"></i>
-                    </button>
-                    <div class="pointer-events-none absolute right-0 z-20 mt-2 w-48 rounded-3xl bg-slate-950/95 p-2 text-sm text-slate-100 opacity-0 scale-95 shadow-xl shadow-black/30 transition-all duration-150 group-focus-within:opacity-100 group-focus-within:scale-100 group-focus-within:pointer-events-auto">
-                        <a href="{{ route('member.profile') }}" class="block rounded-2xl px-3 py-2 text-sm text-slate-100 hover:bg-white/10">Settings</a>
-                        <form action="{{ route('logout') }}" method="POST" class="mt-1">
-                            @csrf
-                            <button type="submit" class="w-full rounded-2xl px-3 py-2 text-left text-sm text-slate-100 hover:bg-white/10">Logout</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <main class="grid gap-12 mt-16 pb-40 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
-            <section class="space-y-6">
-                <div class="max-w-2xl">
-                    <p class="text-sm font-semibold uppercase tracking-[0.4em] text-cyan-100">Selamat datang di PerpustakaanKu</p>
-                    <h1 class="mt-4 text-4xl font-extrabold tracking-tight text-white sm:text-5xl">Temukan buku favoritmu dan pinjam dalam beberapa klik.</h1>
-                    <p class="mt-6 text-base leading-8 text-cyan-100">Nikmati koleksi buku lengkap, riwayat peminjaman yang mudah dipantau, dan pengalaman belajar yang nyaman. Semua dalam satu aplikasi perpustakaan digital.</p>
-                </div>
-
-                <div class="grid gap-4 sm:grid-cols-3">
-                    <div class="rounded-3xl bg-white/10 p-5 text-slate-100 shadow-lg shadow-slate-900/20 backdrop-blur-xl">
-                        <h2 class="text-lg font-semibold">Katalog Buku</h2>
-                        <p class="mt-2 text-sm text-slate-200">Cari buku berdasarkan kategori, pengarang, dan judul.</p>
-                    </div>
-                    <div class="rounded-3xl bg-white/10 p-5 text-slate-100 shadow-lg shadow-slate-900/20 backdrop-blur-xl">
-                        <h2 class="text-lg font-semibold">Peminjaman Cepat</h2>
-                        <p class="mt-2 text-sm text-slate-200">Ajukan pinjaman langsung dari dashboard anggota.</p>
-                    </div>
-                    <div class="rounded-3xl bg-white/10 p-5 text-slate-100 shadow-lg shadow-slate-900/20 backdrop-blur-xl">
-                        <h2 class="text-lg font-semibold">Profil Anggota</h2>
-                        <p class="mt-2 text-sm text-slate-200">Kelola data akun, password, dan foto profil.</p>
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-3 sm:flex-row">
-                    <a href="{{ route('member.books.index') }}" class="inline-flex items-center justify-center rounded-full bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-lg shadow-slate-900/20 hover:bg-slate-100">Lihat Koleksi Buku</a>
-                    <a href="{{ route('member.borrowings.index') }}" class="inline-flex items-center justify-center rounded-full border border-white/60 bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20">Status Peminjaman</a>
-                </div>
-            </section>
-
-            <section class="rounded-[2rem] bg-white/10 p-8 shadow-2xl shadow-slate-950/10 ring-1 ring-white/10 backdrop-blur-xl">
-                <div class="space-y-5">
-                    <div class="inline-flex items-center gap-3 rounded-full bg-slate-900/15 px-4 py-2 text-sm text-white">
-                        <i class="bi bi-journal-bookmark-fill"></i>
-                        <span>Halo, {{ auth()->user()->name }}</span>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-semibold text-white">Ringkasan Cepat</h2>
-                        <p class="mt-2 text-sm text-slate-200">Anda login sebagai anggota. Gunakan tombol di atas untuk mulai meminjam dan cek koleksi terbaru.</p>
-                    </div>
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div class="rounded-3xl bg-white/10 p-4">
-                            <p class="text-sm text-slate-200">Buku Tersedia</p>
-                            <p class="mt-3 text-3xl font-bold text-white">0</p>
-                        </div>
-                        <div class="rounded-3xl bg-white/10 p-4">
-                            <p class="text-sm text-slate-200">Peminjaman Aktif</p>
-                            <p class="mt-3 text-3xl font-bold text-white">0</p>
-                        </div>
-                    </div>
-                    <div class="mt-4 rounded-3xl bg-white/5 p-4 text-sm leading-6 text-slate-200">Kunjungi halaman buku untuk melihat koleksi lengkap dan pilih judul yang ingin Anda pinjam. Jika ingin memperbarui profil atau password, buka halaman profil Anda.</div>
-                </div>
-            </section>
-        </main>
-    </div>
-    <section class="bg-slate-800 py-12">
-        <div class="mx-auto max-w-6xl px-5">
-
-            <div class="grid gap-10 lg:grid-cols-2">
-
-                <!-- Kiri -->
-                <div class="space-y-4">
-                    <h2 class="text-xl font-semibold text-white">Kontak Perpustakaan</h2>
-                    <p class="text-sm text-slate-300">
-                        Silakan hubungi kami untuk informasi buku, pendaftaran anggota, dan status peminjaman.
-                    </p>
-
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div>
-                            <p class="text-xs text-slate-400">Alamat</p>
-                            <p class="mt-1 text-sm text-white">Jl. Contoh No. 123</p>
-                        </div>
-
-                        <div>
-                            <p class="text-xs text-slate-400">Telepon</p>
-                            <p class="mt-1 text-sm text-white">(021) 1234 5678</p>
-                        </div>
-
-                        <div>
-                            <p class="text-xs text-slate-400">Email</p>
-                            <p class="mt-1 text-sm text-white">info@perpustakaanku.id</p>
-                        </div>
-
-                        <div>
-                            <p class="text-xs text-slate-400">Jam</p>
-                            <p class="mt-1 text-sm text-white">08:00 - 17:00</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kanan -->
-                <div class="overflow-hidden rounded-xl">
-                    <div class="h-[260px] w-full">
-                        <div id="map" class="h-full w-full"></div>
-                    </div>
-                </div>
-
-            </div>
-
         </div>
-    </section>
+    </header>
+
+    <!-- Main Content -->
+    <main class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Selamat datang, {{ auth()->user()->name }}</h1>
+            <p class="mt-1 text-gray-600">Temukan buku favoritmu dari koleksi kami</p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <a href="{{ route('member.books.index') }}" class="group relative overflow-hidden rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 p-6 hover:shadow-lg transition-shadow">
+                <div class="absolute right-0 bottom-0 opacity-20">
+                    <i class="bi bi-book text-9xl text-white"></i>
+                </div>
+                <div class="relative">
+                    <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-white/20 text-white mb-4">
+                        <i class="bi bi-book text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Koleksi Buku</h3>
+                    <p class="mt-1 text-orange-100">Jelajahi katalog lengkap buku-buku pilihan</p>
+                    <span class="inline-flex items-center gap-1 mt-3 text-sm font-medium text-white group-hover:underline">
+                        Lihat Selengkapnya <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            <a href="{{ route('member.borrowings.index') }}" class="group relative overflow-hidden rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 p-6 hover:shadow-lg transition-shadow">
+                <div class="absolute right-0 bottom-0 opacity-20">
+                    <i class="bi bi-journal-check text-9xl text-white"></i>
+                </div>
+                <div class="relative">
+                    <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-white/20 text-white mb-4">
+                        <i class="bi bi-journal-check text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Peminjaman</h3>
+                    <p class="mt-1 text-blue-100">{{ $activeBorrowings ?? 0 }} buku sedang dipinjam</p>
+                    <span class="inline-flex items-center gap-1 mt-3 text-sm font-medium text-white group-hover:underline">
+                        Lihat Selengkapnya <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+
+            <a href="{{ route('member.profile') }}" class="group relative overflow-hidden rounded-xl bg-gradient-to-r from-purple-500 to-purple-600 p-6 hover:shadow-lg transition-shadow">
+                <div class="absolute right-0 bottom-0 opacity-20">
+                    <i class="bi bi-person text-9xl text-white"></i>
+                </div>
+                <div class="relative">
+                    <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-white/20 text-white mb-4">
+                        <i class="bi bi-person text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-white">Profil</h3>
+                    <p class="mt-1 text-purple-100">Kelola informasi akunmu</p>
+                    <span class="inline-flex items-center gap-1 mt-3 text-sm font-medium text-white group-hover:underline">
+                        Lihat Selengkapnya <i class="bi bi-arrow-right"></i>
+                    </span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Latest Books -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-gray-900">Buku Terbaru</h2>
+                <a href="{{ route('member.books.index') }}" class="text-sm font-medium text-orange-600 hover:text-orange-700">Lihat Semua</a>
+            </div>
+        </div>
+
+        @if(isset($recentBooks) && $recentBooks->count() > 0)
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+            @foreach($recentBooks as $book)
+            <a href="{{ route('member.books.show', $book) }}" class="group">
+                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="aspect-[3/4] bg-gray-100 relative">
+                        @if($book->cover_image)
+                        <img src="{{ asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}" class="h-full w-full object-cover">
+                        @else
+                        <div class="flex h-full items-center justify-center bg-gray-200">
+                            <i class="bi bi-book text-4xl text-gray-400"></i>
+                        </div>
+                        @endif
+                        @if($book->stock > 0)
+                        <span class="absolute top-2 right-2 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">Tersedia</span>
+                        @else
+                        <span class="absolute top-2 right-2 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded">Habis</span>
+                        @endif
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-orange-600">{{ $book->title }}</h3>
+                        <p class="text-sm text-gray-500 mt-1">{{ optional($book->author)->name ?? '-' }}</p>
+                        <p class="text-xs text-gray-400 mt-2">{{ optional($book->publisher)->name ?? '-' }}</p>
+                    </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
+        @else
+        <div class="bg-gray-50 rounded-lg p-12 text-center">
+            <i class="bi bi-book text-4xl text-gray-400"></i>
+            <p class="mt-4 text-gray-600">Belum ada buku terbaru</p>
+        </div>
+        @endif
+
+        <!-- Popular Books / Buku Terlaris -->
+        <div class="mt-12 mb-6">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-gray-900">Buku Terlaris</h2>
+                <a href="{{ route('member.books.index') }}" class="text-sm font-medium text-orange-600 hover:text-orange-700">Lihat Semua</a>
+            </div>
+        </div>
+
+        @if(isset($popularBooks) && $popularBooks->count() > 0)
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
+            @foreach($popularBooks as $book)
+            <a href="{{ route('member.books.show', $book) }}" class="group">
+                <div class="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+                    <div class="aspect-[3/4] bg-gray-100 relative">
+                        @if($book->cover_image)
+                        <img src="{{ asset('storage/' . $book->cover_image) }}" alt="{{ $book->title }}" class="h-full w-full object-cover">
+                        @else
+                        <div class="flex h-full items-center justify-center bg-gray-200">
+                            <i class="bi bi-book text-4xl text-gray-400"></i>
+                        </div>
+                        @endif
+                        @if($book->stock > 0)
+                        <span class="absolute top-2 right-2 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">Tersedia</span>
+                        @else
+                        <span class="absolute top-2 right-2 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded">Habis</span>
+                        @endif
+                        <div class="absolute top-2 left-2">
+                            <span class="px-2 py-0.5 text-xs font-medium bg-orange-500 text-white rounded">
+                                <i class="bi bi-fire mr-1"></i>{{ $book->borrowings_count ?? 0 }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-orange-600">{{ $book->title }}</h3>
+                        <p class="text-sm text-gray-500 mt-1">{{ optional($book->author)->name ?? '-' }}</p>
+                    </div>
+                </div>
+            </a>
+            @endforeach
+        </div>
+        @else
+        <div class="bg-gray-50 rounded-lg p-12 text-center">
+            <i class="bi bi-bar-chart text-4xl text-gray-400"></i>
+            <p class="mt-4 text-gray-600">Belum ada data buku terlaris</p>
+        </div>
+        @endif
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-12 mt-16">
+        <div class="px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="grid gap-8 md:grid-cols-3">
+                <div>
+                    <h3 class="text-lg font-semibold text-white">PerpustakaanKu</h3>
+                    <p class="mt-2 text-sm text-gray-400">Aplikasi perpustakaan digital untuk anggota SMK MVP ARS Internasional Bandung.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-white">Kontak</h3>
+                    <div class="mt-2 space-y-2 text-sm text-gray-400">
+                        <p>Jl. Gegerkalong Hilir No. 69, Bandung</p>
+                        <p>(022) 201 8730</p>
+                        <p>perpustakaan@smkmvparsi.sch.id</p>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-white">Jam Buka</h3>
+                    <p class="mt-2 text-sm text-gray-400">Senin - Jumat: 07:00 - 16:00</p>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-800 text-center">
+                <p class="text-sm text-gray-500">&copy; {{ date('Y') }} PerpustakaanKu - SMK MVP ARS Internasional Bandung</p>
+            </div>
+        </div>
+    </footer>
 </div>
-<script>
-    var map = L.map('map').setView([-6.914744, 107.609810], 16); // Bandung - SMK MVP ARS
-
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    L.marker([-6.914744, 107.609810])
-        .addTo(map)
-        .bindPopup("SMK MVP ARS Internasional Bandung")
-        .openPopup();
-</script>
 @endsection
