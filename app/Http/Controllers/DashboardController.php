@@ -28,6 +28,8 @@ class DashboardController extends Controller
         $totalBorrowed = 0;
         $totalBorrowRequests = 0;
         $totalReturnRequests = 0;
+        $totalOverdue = 0;
+        $totalUnpaidFines = 0;
 
         $topBorrowedBooks = collect([
             ['title' => 'Pemrograman Dasar', 'borrow_count' => 16],
@@ -49,6 +51,16 @@ class DashboardController extends Controller
             $totalReturnRequests = DB::table('borrowings')
                 ->where('status', 'return_requested')
                 ->count();
+
+            $totalOverdue = DB::table('borrowings')
+                ->whereIn('status', ['borrowed', 'overdue'])
+                ->whereDate('due_date', '<', now()->toDateString())
+                ->count();
+
+            $totalUnpaidFines = DB::table('borrowings')
+                ->where('fine_status', 'unpaid')
+                ->where('fine', '>', 0)
+                ->sum('fine');
 
             $topBorrowedBooks = DB::table('borrowings')
                 ->join('books', 'borrowings.book_id', '=', 'books.id')
@@ -114,7 +126,9 @@ class DashboardController extends Controller
             'totalReturnRequests',
             'totalMembers',
             'activeAccounts',
-            'topBorrowedBooks'
+            'topBorrowedBooks',
+            'totalOverdue',
+            'totalUnpaidFines'
         );
 
         if ($view === 'pages.dashboard.ecommerce') {

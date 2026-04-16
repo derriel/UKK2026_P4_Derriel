@@ -59,11 +59,14 @@ Route::middleware('auth')->group(function () {
 
     // Route untuk halaman manajemen peminjaman dan pengembalian
     Route::resource('borrowing-returns', BorrowingController::class)
-        ->only(['index', 'create', 'edit', 'store', 'update', 'destroy']);
+        ->only(['index', 'create', 'edit', 'store', 'update']);
+    Route::delete('borrowing-returns/{borrowing}', [BorrowingController::class, 'destroy'])->name('borrowing-returns.destroy');
     Route::post('borrowing-returns/{borrowing}/approve-borrow', [BorrowingController::class, 'approveBorrow'])->name('borrowing-returns.approveBorrow');
     Route::post('borrowing-returns/{borrowing}/approve-return', [BorrowingController::class, 'approveReturn'])->name('borrowing-returns.approveReturn');
+    Route::post('borrowing-returns/{borrowing}/reject-return', [BorrowingController::class, 'rejectReturn'])->name('borrowing-returns.rejectReturn');
     Route::post('borrowing-returns/{borrowing}/return', [BorrowingController::class, 'returnBook'])->name('borrowing-returns.return');
     Route::post('borrowing-returns/{borrowing}/pay-fine', [BorrowingController::class, 'payFine'])->name('borrowing-returns.payFine');
+    Route::get('borrowing-returns/refresh-table', [BorrowingController::class, 'refreshTable'])->name('borrowing-returns.refreshTable');
 
     // Member-specific pages
     Route::get('/member/books', [BookController::class, 'catalog'])->name('member.books.index');

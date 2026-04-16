@@ -8,12 +8,13 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Author;
 use App\Models\Category;
 use App\Models\Publisher;
+use App\Models\Rack;
 
 class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::with(['author', 'publisher', 'category'])->get();
+        $books = Book::with(['author', 'publisher', 'category', 'rack'])->get();
         $authors = Author::all();
         $publishers = Publisher::all();
         $categories = Category::all();
@@ -32,12 +33,14 @@ class BookController extends Controller
         $authors = Author::all();
         $publishers = Publisher::all();
         $categories = Category::all();
+        $racks = Rack::all();
 
         return view('pages.books.create.index', [
             'title' => 'Tambah Buku',
             'authors' => $authors,
             'publishers' => $publishers,
             'categories' => $categories,
+            'racks' => $racks,
         ]);
     }
 
@@ -46,6 +49,7 @@ class BookController extends Controller
         $authors = Author::all();
         $publishers = Publisher::all();
         $categories = Category::all();
+        $racks = Rack::all();
 
         return view('pages.books.edit.index', [
             'title' => 'Edit Buku',
@@ -53,6 +57,7 @@ class BookController extends Controller
             'authors' => $authors,
             'publishers' => $publishers,
             'categories' => $categories,
+            'racks' => $racks,
         ]);
     }
 
@@ -86,7 +91,7 @@ class BookController extends Controller
 
     public function show(Book $book)
     {
-        $book->load(['author', 'publisher', 'category']);
+        $book->load(['author', 'publisher', 'category', 'rack']);
 
         return view('pages.member.book-detail', [
             'title' => 'Detail Buku',

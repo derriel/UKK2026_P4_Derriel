@@ -85,6 +85,13 @@
                         <p class="font-medium text-gray-900">{{ $book->isbn ?? '-' }}</p>
                     </div>
                     <div class="bg-gray-50 rounded-lg p-4">
+                        <p class="text-sm text-gray-500">Rak</p>
+                        <p class="font-medium text-gray-900">{{ optional($book->rack)->name ?? '-' }}</p>
+                        @if($book->rack && $book->rack->description)
+                        <p class="text-xs text-gray-500 mt-1">{{ $book->rack->description }}</p>
+                        @endif
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
                         <p class="text-sm text-gray-500">Stok</p>
                         <p class="font-medium {{ $book->stock > 0 ? 'text-green-600' : 'text-red-600' }}">{{ $book->stock }}</p>
                     </div>

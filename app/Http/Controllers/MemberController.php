@@ -10,12 +10,12 @@ class MemberController extends Controller
 {
     public function welcome()
     {
-        $recentBooks = Book::with(['author', 'publisher', 'category'])
+        $recentBooks = Book::with(['author', 'publisher', 'category', 'rack'])
             ->orderBy('created_at', 'desc')
             ->take(8)
             ->get();
 
-        $popularBooks = Book::with(['author', 'publisher', 'category'])
+        $popularBooks = Book::with(['author', 'publisher', 'category', 'rack'])
             ->withCount('borrowings')
             ->orderByDesc('borrowings_count')
             ->take(8)
@@ -25,11 +25,22 @@ class MemberController extends Controller
             ->whereIn('status', ['pending', 'approved', 'borrowed'])
             ->count();
 
+        $overdueBorrowings = Borrowing::where('user_id', Auth::id())
+            ->whereIn('status', ['borrowed', 'overdue'])
+            ->whereDate('due_date', '<', now()->toDateString())
+            ->where(function($query) {
+                $query->where('fine_status', 'unpaid')
+                      ->orWhereNull('fine_status');
+            })
+            ->with('book')
+            ->get();
+
         return view('pages.welcome', [
             'title' => 'Welcome',
             'recentBooks' => $recentBooks,
             'popularBooks' => $popularBooks,
             'activeBorrowings' => $activeBorrowings,
+            'overdueBorrowings' => $overdueBorrowings,
         ]);
     }
 }

@@ -98,6 +98,41 @@
         </div>
     </div>
 
+    <!-- Bagian Statistik Tambahan (Terlambat & Denda) -->
+    <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 mb-8">
+        <!-- Card 5: Buku Terlambat -->
+        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Buku Terlambat</p>
+                    <h3 class="mt-3 text-3xl font-bold text-gray-900 dark:text-white">{{ $totalOverdue ?? 0 }}</h3>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Buku yang terlambat dikembalikan</p>
+                </div>
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 9V13M12 17H12.01M5.07183 19H18.9282C20.4678 19 21.4301 17.3333 20.6603 16L13.7321 4C12.9623 2.66667 11.0377 2.66667 10.2679 4L3.33975 16C2.56995 17.3333 3.53223 19 5.07183 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-red-600 dark:stroke-red-400" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 6: Total Denda -->
+        <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Denda</p>
+                    <h3 class="mt-3 text-3xl font-bold text-gray-900 dark:text-white">Rp {{ number_format($totalUnpaidFines ?? 0, 0, ',', '.') }}</h3>
+                    <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">Denda yang belum dibayar</p>
+                </div>
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/30">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2V22M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stroke-orange-600 dark:stroke-orange-400" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bagian Kelola Peminjaman & Pengembalian -->
     <!-- Tabel untuk menyetujui/menolak pengajuan pinjam dan kembali -->
     <div class="mt-8 rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] p-6 shadow-sm">
@@ -116,6 +151,7 @@
                         <th class="px-4 py-3">Buku</th>
                         <th class="px-4 py-3">Tanggal Pinjam</th>
                         <th class="px-4 py-3">Jatuh Tempo</th>
+                        <th class="px-4 py-3">Denda</th>
                         <th class="px-4 py-3">Status</th>
                         <th class="px-4 py-3">Aksi</th>
                     </tr>
@@ -130,6 +166,15 @@
                         <td class="px-4 py-4">{{ $borrowing->book->title ?? '-' }}</td>
                         <td class="px-4 py-4">{{ $borrowing->borrow_date ? \Carbon\Carbon::parse($borrowing->borrow_date)->format('d/m/Y') : '-' }}</td>
                         <td class="px-4 py-4">{{ $borrowing->due_date ? \Carbon\Carbon::parse($borrowing->due_date)->format('d/m/Y') : '-' }}</td>
+                        <td class="px-4 py-4">
+                            @if($borrowing->fine > 0)
+                            <span class="px-2 py-1 {{ $borrowing->fine_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }} rounded text-xs font-semibold">
+                                Rp {{ number_format($borrowing->fine, 0, ',', '.') }}
+                            </span>
+                            @else
+                            <span class="text-gray-400">-</span>
+                            @endif
+                        </td>
                         <td class="px-4 py-4">
                             @if($borrowing->status === 'requested')
                             <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300">
@@ -157,6 +202,7 @@
                                         Setuju
                                     </button>
                                 </form>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="rejectReturn({{ $borrowing->id }})">Tolak</button>
                                 @endif
                             </div>
                         </td>

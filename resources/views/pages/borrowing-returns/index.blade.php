@@ -13,7 +13,7 @@
 <x-common.page-breadcrumb pageTitle="Kelola Peminjaman & Pengembalian" />
 <div class="space-y-6">
     <x-common.component-card title="Daftar Peminjaman & Pengembalian">
-        
+
         <!-- Bagian Header: Tombol Tambah dan Statistik -->
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
 
@@ -84,6 +84,7 @@
                         <th class="px-4 py-3 text-left font-semibold">Judul Buku</th>
                         <th class="px-4 py-3 text-left font-semibold">Tgl. Peminjaman</th>
                         <th class="px-4 py-3 text-left font-semibold">Tgl. Kembali</th>
+                        <th class="px-4 py-3 text-left font-semibold">Denda</th>
                         <th class="px-4 py-3 text-left font-semibold">Status</th>
                         <th class="px-4 py-3 text-center font-semibold">Aksi</th>
                     </tr>
@@ -95,7 +96,38 @@
                         <td class="px-4 py-3">{{ $peminjaman->user->name ?? '-' }}</td>
                         <td class="px-4 py-3">{{ $peminjaman->book->title ?? '-' }}</td>
                         <td class="px-4 py-3">{{ optional($peminjaman->borrow_date)->format('Y-m-d') ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ optional($peminjaman->return_date)->format('Y-m-d') ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ optional($peminjaman->returned_at)->format('Y-m-d') ?? optional($peminjaman->return_date)->format('Y-m-d') ?? '-' }}</td>
+                        <td class="px-4 py-3">
+                            @php
+                            $displayFine = $peminjaman->fine;
+                            $dueDate = \Carbon\Carbon::parse($peminjaman->due_date);
+                            $returnDate = $peminjaman->returned_at 
+                                ? \Carbon\Carbon::parse($peminjaman->returned_at) 
+                                : now();
+
+                            // Calculate fine if late
+                            if ($returnDate->greaterThan($dueDate)) {
+                                $daysLate = (int)$dueDate->diffInDays($returnDate);
+                                $finePerDay = $peminjaman->book->fine_per_day ?? 5000;
+                                $displayFine = $daysLate * $finePerDay;
+                            }
+
+                            $isPaid = $peminjaman->fine_status === 'paid';
+                            @endphp
+
+                            @if($displayFine > 0)
+                            <span class="px-2 py-1 {{ $isPaid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }} rounded text-xs font-semibold">
+                                Rp {{ number_format($displayFine, 0, ',', '.') }}
+                                @if($isPaid)
+                                (Lunas)
+                                @else
+                                (Terlambat)
+                                @endif
+                            </span>
+                            @else
+                            <span class="text-gray-400">-</span>
+                            @endif
+                        </td>
                         <td class="px-4 py-3">
                             @if($peminjaman->status === 'requested')
                             <span class="px-2 py-1 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded text-xs font-semibold">Menunggu Persetujuan</span>
@@ -114,46 +146,38 @@
                         <td class="px-4 py-3">
                             <div class="flex justify-center gap-2 flex-wrap">
                                 @if($peminjaman->status === 'requested')
-                                <form action="{{ route('borrowing-returns.approveBorrow', $peminjaman) }}" method="POST">
+                                <form action="{{ route('borrowing-returns.approveBorrow', $peminjaman->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn btn-sm btn-primary inline-flex items-center gap-2">Setujui Pinjaman</button>
+                                    <button type="submit" class="btn btn-sm btn-primary">Setuju</button>
                                 </form>
                                 @endif
                                 @if($peminjaman->status === 'borrowed')
-                                <form action="{{ route('borrowing-returns.return', $peminjaman) }}" method="POST" class="inline-flex items-center gap-2">
+                                <form action="{{ route('borrowing-returns.return', $peminjaman->id) }}" method="POST">
                                     @csrf
-                                    <input type="date" name="returned_at" class="px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded" required>
-                                    <button type="submit" class="btn btn-sm btn-success inline-flex items-center gap-2">Kembalikan</button>
+                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Konfirmasi pengembalian buku?')">Kembalikan</button>
+                                </form>
+                                @endif
+                                @if(in_array($peminjaman->status, ['borrowed', 'return_requested', 'returned']) && $peminjaman->fine_status !== 'paid' && $displayFine > 0)
+                                <form action="{{ route('borrowing-returns.payFine', $peminjaman->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-warning" onclick="return confirm('Tandai denda sudah dibayar?')">Lunas</button>
                                 </form>
                                 @endif
                                 @if($peminjaman->status === 'return_requested')
-                                <form action="{{ route('borrowing-returns.approveReturn', $peminjaman) }}" method="POST">
+                                <form action="{{ route('borrowing-returns.approveReturn', $peminjaman->id) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn btn-sm btn-success inline-flex items-center gap-2">Setujui Pengembalian</button>
+                                    <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Setuju?')">Setuju</button>
                                 </form>
+                                <button type="button" class="btn btn-sm btn-danger" onclick="rejectReturn({{ $peminjaman->id }})">Tolak</button>
                                 @endif
-                                <a href="{{ route('borrowing-returns.edit', $peminjaman->id) }}" class="btn btn-sm btn-outline-primary inline-flex items-center gap-2">
-                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M11.5 2L14 4.5L5 13.5H2.5V11L11.5 2Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                    Edit
-                                </a>
-                                <form action="{{ route('borrowing-returns.destroy', $peminjaman->id) }}" method="POST" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger inline-flex items-center gap-2" onclick="return confirm('Apakah Anda yakin?')">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M2 4H14M6.5 7V12M9.5 7V12M3 4L4 14C4 14.5304 4.21071 15.0391 4.58579 15.4142C4.96086 15.7893 5.46957 16 6 16H10C10.5304 16 11.0391 15.7893 11.4142 15.4142C11.7893 15.0391 12 14.5304 12 14L13 4M5.5 4V2.5C5.5 2.23478 5.60536 1.98043 5.79289 1.79289C5.98043 1.60536 6.23478 1.5 6.5 1.5H9.5C9.76522 1.5 10.0196 1.60536 10.2071 1.79289C10.3946 1.98043 10.5 2.23478 10.5 2.5V4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                                        </svg>
-                                        Hapus
-                                    </button>
-                                </form>
+                                <a href="{{ route('borrowing-returns.edit', $peminjaman->id) }}" class="btn btn-sm btn-outline-primary">Edit</a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="deleteBorrowing({{ $peminjaman->id }})">Hapus</button>
                             </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">Belum ada data peminjaman.</td>
+                        <td colspan="8" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">Belum ada data peminjaman.</td>
                     </tr>
                     @endforelse
                 </tbody>

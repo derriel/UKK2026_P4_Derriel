@@ -34,7 +34,23 @@ class BorrowingController extends Controller
 
     public function showBorrowForm()
     {
-        return view('pages.member.create'); // sesuaikan dengan view kamu
+        return view('pages.member.create');
+    }
+
+    public function refreshTable()
+    {
+        $borrowings = Borrowing::with(['user', 'book'])->get();
+        
+        return view('pages.borrowing-returns.index', [
+            'title' => 'Kelola Peminjaman & Pengembalian',
+            'borrowings' => $borrowings,
+            'users' => \App\Models\User::all(),
+            'books' => \App\Models\Book::all(),
+            'roles' => \App\Models\Role::all(),
+            'totalBorrowed' => Borrowing::where('status', 'borrowed')->count(),
+            'totalBorrowRequests' => Borrowing::where('status', 'requested')->count(),
+            'totalReturnRequests' => Borrowing::where('status', 'return_requested')->count(),
+        ])->render();
     }
 
     public function memberIndex()
@@ -92,6 +108,31 @@ class BorrowingController extends Controller
 
         if ($borrowing->status !== 'borrowed') {
             return back()->with('error', 'Hanya peminjaman dengan status dipinjam yang bisa diajukan pengembaliannya.');
+        }
+
+        // Check if member is overdue - block ALL returns if overdue
+        $dueDate = \Carbon\Carbon::parse($borrowing->due_date);
+        $isOverdue = now()->greaterThan($dueDate);
+        
+        // Calculate and save fine if overdue
+        if ($isOverdue) {
+            $daysLate = (int)now()->diffInDays($dueDate);
+            $finePerDay = $borrowing->book->fine_per_day ?? 5000;
+            $fine = $daysLate * $finePerDay;
+            
+            // Block return if there's any fine
+            if ($fine > 0) {
+                $borrowing->update([
+                    'fine' => $fine,
+                    'fine_status' => 'unpaid',
+                ]);
+                return back()->with('error', 'Buku terlambat! Anda memiliki denda Rp ' . number_format($fine, 0, ',', '.') . '. Silakan bayarkan dulu sebelum mengajukan pengembalian.');
+            }
+        }
+
+        // Check for any unpaid fine (including negative or zero)
+        if ($borrowing->fine_status === 'unpaid' && $borrowing->fine != 0) {
+            return back()->with('error', 'Anda memiliki denda yang belum dibayar. Silakan bayarkan dulu sebelum mengajukan pengembalian.');
         }
 
         $borrowing->update([
@@ -169,15 +210,15 @@ class BorrowingController extends Controller
     {
         $borrowing->delete();
 
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Peminjaman berhasil dihapus.']);
+        }
+
         return redirect()->route('borrowing-returns.index')->with('success', 'Peminjaman berhasil dihapus.');
     }
 
     public function returnBook(Request $request, Borrowing $borrowing)
     {
-        $validated = $request->validate([
-            'returned_at' => ['required', 'date', 'after_or_equal:borrow_date'],
-        ]);
-
         if (!in_array($borrowing->status, ['borrowed', 'return_requested'], true)) {
             return redirect()->route('borrowing-returns.index')->with('error', 'Hanya peminjaman aktif yang dapat dikembalikan.');
         }
@@ -187,12 +228,26 @@ class BorrowingController extends Controller
             $borrowedBook->increment('stock');
         }
 
+        $returnDate = now();
+        $dueDate = \Carbon\Carbon::parse($borrowing->due_date);
+        
+        $fine = 0;
+        if ($returnDate->greaterThan($dueDate)) {
+            $daysLate = (int)$returnDate->diffInDays($dueDate);
+            $finePerDay = $borrowedBook->fine_per_day ?? 5000;
+            $fine = $daysLate * $finePerDay;
+        }
+
         $borrowing->update([
-            'returned_at' => $validated['returned_at'],
+            'returned_at' => $returnDate,
             'status' => 'returned',
+            'fine' => $fine,
+            'fine_status' => $fine > 0 ? 'unpaid' : 'paid',
+            'paid_at' => $fine > 0 ? null : now(),
+            'notes' => 'Buku dikembalikan. ' . ($fine > 0 ? 'Denda: Rp ' . number_format($fine, 0, ',', '.') : ''),
         ]);
 
-        return redirect()->route('borrowing-returns.index')->with('success', 'Buku berhasil dikembalikan.');
+        return redirect()->route('borrowing-returns.index')->with('success', 'Buku berhasil dikembalikan.' . ($fine > 0 ? ' Denda: Rp ' . number_format($fine, 0, ',', '.') : ''));
     }
 
     public function approveBorrow(Borrowing $borrowing)
@@ -222,41 +277,70 @@ class BorrowingController extends Controller
             return redirect()->route('borrowing-returns.index')->with('error', 'Hanya pengajuan pengembalian yang dapat disetujui.');
         }
 
+        if ($borrowing->fine > 0 && $borrowing->fine_status === 'unpaid') {
+            return redirect()->route('borrowing-returns.index')->with('error', 'Anggota belum membayar denda. Tunggu anggota membayar terlebih dahulu.');
+        }
+
         $book = $borrowing->book;
         if ($book) {
             $book->increment('stock');
         }
 
-        $fine = 0;
-        if (now()->greaterThan($borrowing->due_date)) {
-            $daysLate = (int)now()->diffInDays($borrowing->due_date);
-            $finePerDay = $borrowing->book->fine_per_day ?? 5000;
-            $fine = $daysLate * $finePerDay;
-        }
-
         $borrowing->update([
             'status' => 'returned',
             'returned_at' => now(),
-            'fine' => $fine,
-            'fine_status' => $fine > 0 ? 'unpaid' : 'paid',
-            'paid_at' => $fine > 0 ? null : now(),
             'notes' => 'Pengajuan pengembalian disetujui oleh petugas/admin.',
         ]);
 
-        return redirect()->route('borrowing-returns.index')->with('success', 'Pengembalian berhasil disetujui.' . ($fine > 0 ? ' Denda: Rp ' . number_format($fine, 0, ',', '.') : ''));
+        return redirect()->route('borrowing-returns.index')->with('success', 'Pengembalian berhasil disetujui.');
+    }
+
+    public function rejectReturn(Borrowing $borrowing)
+    {
+        if ($borrowing->status !== 'return_requested') {
+            return response()->json(['success' => false, 'message' => 'Hanya pengajuan pengembalian yang dapat ditolak.']);
+        }
+
+        $borrowing->update([
+            'status' => 'borrowed',
+            'notes' => 'Pengajuan pengembalian ditolak oleh petugas/admin.',
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Pengembalian ditolak.']);
     }
 
     public function payFine(Borrowing $borrowing)
     {
-        if ($borrowing->fine_status !== 'unpaid' || $borrowing->fine <= 0) {
+        // Calculate fine if overdue but not saved
+        $dueDate = \Carbon\Carbon::parse($borrowing->due_date);
+        $isOverdue = now()->greaterThan($dueDate);
+        
+        $fine = $borrowing->fine;
+        if ($isOverdue && $fine <= 0) {
+            $daysLate = (int)now()->diffInDays($dueDate);
+            $finePerDay = optional($borrowing->book)->fine_per_day ?? 5000;
+            $fine = $daysLate * $finePerDay;
+        }
+
+        // Allow payment if: fine > 0, OR status is 'unpaid', OR is overdue with calculated fine
+        $canPay = $fine > 0 || $borrowing->fine_status === 'unpaid' || $isOverdue;
+        
+        if (!$canPay) {
+            if (request()->ajax()) {
+                return response()->json(['success' => false, 'message' => 'Tidak ada denda yang perlu dibayar.']);
+            }
             return back()->with('error', 'Tidak ada denda yang perlu dibayar.');
         }
 
         $borrowing->update([
+            'fine' => $fine,
             'fine_status' => 'paid',
             'paid_at' => now(),
         ]);
 
+        if (request()->ajax()) {
+            return response()->json(['success' => true, 'message' => 'Denda berhasil dibayar.']);
+        }
         return back()->with('success', 'Denda berhasil dibayar.');
     }
 }

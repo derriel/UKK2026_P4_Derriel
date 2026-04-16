@@ -9,6 +9,7 @@ use App\Models\Author;
 use App\Models\Borrowing;
 use App\Models\Category;
 use App\Models\Publisher;
+use App\Models\Rack;
 
 // Model Book yang mewakili tabel books di database
 class Book extends Model
@@ -19,6 +20,7 @@ class Book extends Model
         'author_id',          // Penulis buku
         'publisher_id',       // Penerbit buku
         'category_id',      // Kategori buku
+        'rack_id',          // Rak buku
         'isbn',            // ISBN buku
         'stock',           // Stok buku
         'fine_per_day',    // Denda per hari keterlambatan
@@ -49,5 +51,10 @@ class Book extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function rack()
+    {
+        return $this->belongsTo(Rack::class);
     }
 }

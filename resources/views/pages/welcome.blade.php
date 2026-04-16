@@ -105,6 +105,26 @@
             </a>
         </div>
 
+        @if(isset($overdueBorrowings) && $overdueBorrowings->count() > 0)
+        <div class="mb-10 rounded-xl border border-red-200 bg-red-50 p-6">
+            <div class="flex items-center gap-2 mb-4">
+                <i class="bi bi-exclamation-triangle-fill text-red-600 text-xl"></i>
+                <h2 class="text-lg font-bold text-red-700">Buku Terlambat</h2>
+            </div>
+            <p class="text-sm text-red-600 mb-4">Anda memiliki {{ $overdueBorrowings->count() }} buku yang terlambat dikembalikan. Silakan kembalikan segera untuk menghindari denda.</p>
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                @foreach($overdueBorrowings as $borrowing)
+                <div class="bg-white rounded-lg border border-red-200 p-4">
+                    <h3 class="font-semibold text-gray-900 line-clamp-1">{{ $borrowing->book->title ?? '-' }}</h3>
+                    <p class="text-sm text-red-600 mt-1">Jatuh tempo: {{ \Carbon\Carbon::parse($borrowing->due_date)->format('d/m/Y') }}</p>
+                    <p class="text-sm text-gray-500">Terlambat: {{ (int)now()->diffInDays($borrowing->due_date) }} hari</p>
+                    <a href="{{ route('member.borrowings.index') }}" class="inline-block mt-3 text-sm font-medium text-red-600 hover:text-red-700">Lihat Detail</a>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
         <!-- Latest Books -->
         <div class="mb-6">
             <div class="flex items-center justify-between">
@@ -135,7 +155,10 @@
                     <div class="p-4">
                         <h3 class="text-sm font-medium text-gray-900 line-clamp-2 group-hover:text-orange-600">{{ $book->title }}</h3>
                         <p class="text-sm text-gray-500 mt-1">{{ optional($book->author)->name ?? '-' }}</p>
-                        <p class="text-xs text-gray-400 mt-2">{{ optional($book->publisher)->name ?? '-' }}</p>
+                        <p class="text-sm text-gray-500 mt-1">{{ optional($book->publisher)->name ?? '-' }}</p>
+                        @if(optional($book->rack)->name)
+                        <p class="text-xs text-gray-400">Rak: {{ $book->rack->name }}</p>
+                        @endif
                     </div>
                 </div>
             </a>

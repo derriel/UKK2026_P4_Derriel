@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rack;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class RackController extends Controller
 {
     public function index()
     {
-        $racks = Rack::all();
+        $racks = Rack::with('category')->get();
 
         return view('pages.racks.index', [
             'title' => 'Kelola Rak Buku',
@@ -19,24 +20,32 @@ class RackController extends Controller
 
     public function create()
     {
+        $categories = Category::all();
+        
         return view('pages.racks.create.index', [
             'title' => 'Tambah Rak',
+            'categories' => $categories,
         ]);
     }
 
     public function edit(Rack $rack)
     {
+        $categories = Category::all();
+        
         return view('pages.racks.edit.index', [
             'title' => 'Edit Rak',
             'rack' => $rack,
+            'categories' => $categories,
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
+            'name' => 'required|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'description' => 'nullable|string|max:1000',
         ]);
 
         Rack::create($validated);
@@ -47,8 +56,10 @@ class RackController extends Controller
     public function update(Request $request, Rack $rack)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string', 'max:1000'],
+            'name' => 'required|string|max:255',
+            'location' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'description' => 'nullable|string|max:1000',
         ]);
 
         $rack->update($validated);

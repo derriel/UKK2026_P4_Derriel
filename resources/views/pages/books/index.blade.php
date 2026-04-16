@@ -27,6 +27,7 @@
                         <th class="px-4 py-3 text-left font-semibold">Pengarang</th>
                         <th class="px-4 py-3 text-left font-semibold">Penerbit</th>
                         <th class="px-4 py-3 text-left font-semibold">Kategori</th>
+                        <th class="px-4 py-3 text-left font-semibold">Rak</th>
                         <th class="px-4 py-3 text-left font-semibold">ISBN</th>
                         <th class="px-4 py-3 text-left font-semibold">Stok</th>
                         <th class="px-4 py-3 text-left font-semibold">Denda/Hari</th>
@@ -49,6 +50,7 @@
                         <td class="px-4 py-3">{{ $buku->author?->name ?? '-' }}</td>
                         <td class="px-4 py-3">{{ $buku->publisher?->name ?? '-' }}</td>
                         <td class="px-4 py-3">{{ $buku->category?->name ?? $buku->category ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $buku->rack?->name ?? '-' }}</td>
                         <td class="px-4 py-3">{{ $buku->isbn }}</td>
                         <td class="px-4 py-3">
                             <span class="px-2 py-1 bg-brand-100 text-brand-700 dark:bg-brand-900/30 dark:text-brand-300 rounded text-xs font-semibold">
@@ -82,7 +84,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="11" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">Belum ada data buku.</td>
+                        <td colspan="12" class="px-4 py-3 text-center text-gray-500 dark:text-gray-400">Belum ada data buku.</td>
                     </tr>
                     @endforelse
                 </tbody>
