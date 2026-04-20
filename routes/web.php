@@ -15,6 +15,10 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PublisherController;
 use App\Http\Controllers\RackController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ClassRoomController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\PetugasController;
+use App\Http\Controllers\ActivityHistoryController;
 use App\Models\Book;
 use App\Models\Siswa;
 use App\Models\Borrowing;
@@ -48,13 +52,23 @@ Route::middleware('auth')->group(function () {
     Route::resource('racks', RackController::class)
         ->only(['index', 'create', 'edit', 'store', 'update', 'destroy']);
 
-    // Route untuk halaman manajemen anggota
-    Route::resource('members', SiswaController::class)
+    // Route untuk halaman manajemen kelas
+    Route::resource('kelas', ClassRoomController::class)
         ->only(['index', 'create', 'edit', 'store', 'update', 'destroy']);
 
-    // Route untuk halaman manajemen users
-    Route::resource('users', UserController::class)
+    // Route untuk halaman manajemen anggota
+    Route::resource('members', SiswaController::class)
+        ->parameters(['members' => 'siswa'])
         ->only(['index', 'create', 'edit', 'store', 'update', 'destroy']);
+
+    // Route untuk halaman manajemen admin
+    Route::resource('admins', AdminController::class)
+        ->only(['index', 'create', 'edit', 'store', 'update', 'destroy']);
+
+    // Route untuk halaman manajemen petugas
+    Route::resource('petugases', PetugasController::class)
+        ->only(['index', 'create', 'edit', 'store', 'update', 'destroy']);
+
     Route::get('users-status', [UserController::class, 'status'])->name('users.status');
 
     // Route untuk halaman manajemen peminjaman dan pengembalian
@@ -66,6 +80,12 @@ Route::middleware('auth')->group(function () {
     Route::post('borrowing-returns/{borrowing}/reject-return', [BorrowingController::class, 'rejectReturn'])->name('borrowing-returns.rejectReturn');
     Route::post('borrowing-returns/{borrowing}/return', [BorrowingController::class, 'returnBook'])->name('borrowing-returns.return');
     Route::post('borrowing-returns/{borrowing}/pay-fine', [BorrowingController::class, 'payFine'])->name('borrowing-returns.payFine');
+
+    // Route untuk riwayat aktivitas
+    Route::get('activity', [ActivityHistoryController::class, 'index'])->name('activity.index');
+    Route::get('activity/borrowed', [ActivityHistoryController::class, 'borrowed'])->name('activity.borrowed');
+    Route::get('activity/returned', [ActivityHistoryController::class, 'returned'])->name('activity.returned');
+    Route::get('activity/fines', [ActivityHistoryController::class, 'fines'])->name('activity.fines');
     Route::get('borrowing-returns/refresh-table', [BorrowingController::class, 'refreshTable'])->name('borrowing-returns.refreshTable');
 
     // Member-specific pages
@@ -153,6 +173,63 @@ Route::put('/profile', [ProfileController::class, 'update'])->name('profile.upda
 Route::get('/chat', function () {
     return view('chat');
 })->name('chat');
+
+Route::get('/add-nis-column', function () {
+    try {
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE siswa ADD COLUMN nis VARCHAR(50)');
+        return 'Kolom nis berhasil ditambahkan!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+Route::get('/add-idsiswa-column', function () {
+    try {
+        \Illuminate\Support\Facades\DB::statement('ALTER TABLE siswa ADD COLUMN id_siswa VARCHAR(20)');
+        return 'Kolom id_siswa berhasil ditambahkan!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
+
+Route::get('/check-kelas', function () {
+    $kelas = \App\Models\ClassRoom::all();
+    return response()->json($kelas);
+});
+
+Route::get('/fix-siswa-table', function () {
+    try {
+        $db = \Illuminate\Support\Facades\DB::connection()->getPdo();
+        
+        // Check and add columns
+        $columns = \Illuminate\Support\Facades\Schema::getColumnListing('siswa');
+        
+        $results = [];
+        
+        if (!in_array('class_room_id', $columns)) {
+            \Illuminate\Support\Facades\DB::statement('ALTER TABLE siswa ADD COLUMN class_room_id INT NULL');
+            $results[] = 'Added class_room_id';
+        }
+        
+        if (!in_array('nis', $columns)) {
+            \Illuminate\Support\Facades\DB::statement('ALTER TABLE siswa ADD COLUMN nis VARCHAR(50) NULL');
+            $results[] = 'Added nis';
+        }
+        
+        if (!in_array('id_siswa', $columns)) {
+            \Illuminate\Support\Facades\DB::statement('ALTER TABLE siswa ADD COLUMN id_siswa VARCHAR(20) NULL');
+            $results[] = 'Added id_siswa';
+        }
+        
+        if (empty($results)) {
+            return 'Tabel siswa sudah lengkap!';
+        }
+        
+        return implode(', ', $results) . ' berhasil ditambahkan!';
+    } catch (\Exception $e) {
+        return 'Error: ' . $e->getMessage();
+    }
+});
 
 
 

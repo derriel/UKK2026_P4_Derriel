@@ -9,10 +9,7 @@ class ClassRoom extends Model
 {
     protected $fillable = [
         'name',
-        'grade',
         'jurusan',
-        'description',
-        'capacity',
     ];
 
     /**

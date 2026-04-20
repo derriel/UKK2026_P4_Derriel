@@ -31,13 +31,30 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kelas</label>
-                    <input name="kelas" type="text" value="{{ old('kelas') }}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Kelas *</label>
+                    <select name="class_room_id" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                        <option value="">Pilih Kelas</option>
+                        @foreach($classes as $class)
+                            <option value="{{ $class->id }}" {{ old('class_room_id') == $class->id ? 'selected' : '' }}>
+                                {{ $class->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('class_room_id')
+                        <p class="mt-1 text-sm text-red-500">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jurusan</label>
-                    <input name="jurusan" type="text" value="{{ old('jurusan') }}" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jurusan *</label>
+                    <select name="jurusan" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" required>
+                        <option value="">Pilih Jurusan</option>
+                        @foreach($classes->pluck('jurusan')->unique() as $jurusan)
+                            <option value="{{ $jurusan }}" {{ old('jurusan') == $jurusan ? 'selected' : '' }}>
+                                {{ $jurusan }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
                 <div>

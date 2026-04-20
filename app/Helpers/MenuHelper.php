@@ -42,13 +42,23 @@ class MenuHelper
             ],
             [
                 'icon' => 'user-profile',
-                'name' => 'Data Users',
-                'path' => '/users',
+                'name' => 'Kelola Data Admin',
+                'path' => '/admins',
+            ],
+            [
+                'icon' => 'user-profile',
+                'name' => 'Kelola Data Petugas',
+                'path' => '/petugases',
             ],
             [
                 'icon' => 'user-profile',
                 'name' => 'Siswa',
                 'path' => '/members',
+            ],
+            [
+                'icon' => 'tables',
+                'name' => 'Kelas',
+                'path' => '/kelas',
             ],
             [
                 'icon' => 'task',
@@ -64,6 +74,11 @@ class MenuHelper
                 'icon' => 'settings',
                 'name' => 'App Config',
                 'path' => '/app-config',
+            ],
+            [
+                'icon' => 'tables',
+                'name' => 'Riwayat Aktivitas',
+                'path' => '/activity',
             ],
         ];
     }
@@ -81,14 +96,19 @@ class MenuHelper
                 'path' => '/borrowing-returns',
             ],
             [
-                'icon' => 'user-profile',
-                'name' => 'Kelola Data Siswa',
-                'path' => '/members',
+                'icon' => 'tables',
+                'name' => 'Kelola Data Buku',
+                'path' => '/books',
             ],
             [
                 'icon' => 'charts',
                 'name' => 'Laporan',
                 'path' => '/reports',
+            ],
+            [
+                'icon' => 'tables',
+                'name' => 'Riwayat Aktivitas',
+                'path' => '/activity',
             ],
         ];
     }

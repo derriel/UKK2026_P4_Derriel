@@ -14,17 +14,17 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- Dumping data for table db_p4derriel.api_tokens: ~0 rows (approximately)
-
 -- Dumping data for table db_p4derriel.authors: ~0 rows (approximately)
 INSERT INTO `authors` (`id`, `name`, `email`, `birth_date`, `nationality`, `biography`, `bio`, `photo`, `created_at`, `updated_at`) VALUES
 	(1, 'Farid Gaban', 'faridgaban@gmail.com', '1997-09-08', 'Indonesia', 'Jurnalis senior Indonesia, pernah menjadi redaktur di media nasional seperti Republika. Ia dikenal luas melalui ekspedisi jurnalistik seperti Ekspedisi Zamrud Khatulistiwa (2009–2010) dan karya buku tentang lingkungan serta kelautan.', NULL, NULL, '2026-04-14 21:42:12', '2026-04-14 21:42:12');
 
 -- Dumping data for table db_p4derriel.books: ~0 rows (approximately)
 INSERT INTO `books` (`id`, `title`, `isbn`, `stock`, `description`, `publication_year`, `created_at`, `updated_at`, `cover_image`, `author_id`, `publisher_id`, `category_id`, `rack_id`, `fine_per_day`, `is_active`) VALUES
-	(1, 'Reset Indonesia', '978-623-6063-74-3', 6, 'Buku Reset Indonesia: Gagasan tentang Indonesia Baru merupakan karya nonfiksi yang ditulis oleh empat jurnalis lintas generasi berdasarkan pengalaman mereka melakukan ekspedisi ke berbagai wilayah di Indonesia. Buku ini mengangkat kondisi nyata masyarakat dari berbagai daerah, mulai dari persoalan lingkungan, pendidikan, ketimpangan sosial, hingga kualitas demokrasi.', '2019', '2026-04-14 23:01:11', '2026-04-16 00:54:03', 'books/ue7KiFOW4RyXz82mk3NY2YQnFmTQOtzfblKN169k.jpg', 1, 1, 1, 3, 1000, 1);
+	(1, 'Reset Indonesia', '978-623-6063-74-3', 6, 'Buku Reset Indonesia: Gagasan tentang Indonesia Baru merupakan karya nonfiksi yang ditulis oleh empat jurnalis lintas generasi berdasarkan pengalaman mereka melakukan ekspedisi ke berbagai wilayah di Indonesia. Buku ini mengangkat kondisi nyata masyarakat dari berbagai daerah, mulai dari persoalan lingkungan, pendidikan, ketimpangan sosial, hingga kualitas demokrasi.', '2019', '2026-04-14 23:01:11', '2026-04-20 09:29:51', 'books/lEs3wW7WdMpa4tH9Iq7n5ipRaEYM8X9g0wWauftt.png', 1, 1, 1, 3, 1000, 1);
 
 -- Dumping data for table db_p4derriel.borrowings: ~0 rows (approximately)
+INSERT INTO `borrowings` (`id`, `user_id`, `book_id`, `role_id`, `borrow_date`, `due_date`, `return_date`, `returned_at`, `status`, `notes`, `fine`, `fine_status`, `paid_at`, `created_at`, `updated_at`) VALUES
+	(17, 2, 1, 3, '2026-04-20', '2026-04-27', NULL, NULL, 'borrowed', NULL, 0.00, 'unpaid', NULL, '2026-04-20 09:30:58', '2026-04-20 09:30:58');
 
 -- Dumping data for table db_p4derriel.cache: ~0 rows (approximately)
 
@@ -34,7 +34,7 @@ INSERT INTO `books` (`id`, `title`, `isbn`, `stock`, `description`, `publication
 INSERT INTO `categories` (`id`, `name`, `description`, `created_at`, `updated_at`) VALUES
 	(1, 'Sosial & Politik', NULL, '2026-04-14 21:49:41', '2026-04-14 21:49:41');
 
--- Dumping data for table db_p4derriel.class_rooms: ~2 rows (approximately)
+-- Dumping data for table db_p4derriel.class_rooms: ~3 rows (approximately)
 INSERT INTO `class_rooms` (`id`, `name`, `grade`, `jurusan`, `description`, `capacity`, `created_at`, `updated_at`) VALUES
 	(1, 'Kelas 10', '10', 'Teknik Komputer dan Jaringan', 'Siswa kelas 10', 30, '2026-04-14 21:38:31', '2026-04-14 21:38:31'),
 	(2, 'Kelas 11', '11', 'Teknik Komputer dan Jaringan', 'Siswa kelas 11', 28, '2026-04-14 21:38:31', '2026-04-14 21:38:31'),
@@ -90,7 +90,7 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 
 -- Dumping data for table db_p4derriel.publishers: ~0 rows (approximately)
 INSERT INTO `publishers` (`id`, `name`, `city`, `address`, `phone`, `logo`, `email`, `created_at`, `updated_at`) VALUES
-	(1, 'Gramedia', 'Jakarta', NULL, '+62 811-1450-436', 'publishers/E2AviYKnuvghPWnnvUblXR4MSL5NN0rQKNsb1qH6.jpg', NULL, '2026-04-14 21:48:43', '2026-04-14 21:48:43');
+	(1, 'Gramedia', 'Jakarta', NULL, '+62 811-1450-436', 'publishers/6y4ZkfwTZ1LvIsW74dUbly9PQHXceTYBIhBvAKAH.png', NULL, '2026-04-14 21:48:43', '2026-04-20 05:37:09');
 
 -- Dumping data for table db_p4derriel.racks: ~0 rows (approximately)
 INSERT INTO `racks` (`id`, `name`, `description`, `created_at`, `updated_at`) VALUES
@@ -104,16 +104,19 @@ INSERT INTO `roles` (`id`, `name`, `description`, `created_at`, `updated_at`) VA
 
 -- Dumping data for table db_p4derriel.sessions: ~2 rows (approximately)
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-	('a594dQNUJ5DYB8kkl9DlCw2MMgqI5mx5mEiO0SoH', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiWmhNZDlKM3F5U2p3Sm5WOFZ0dWZJM0lkM1NSWDFpdjBvZ1RseFVGMCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9tZW1iZXIvYm9va3MvMSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjI7fQ==', 1776326067),
-	('oWkkGdPkDeVTivzOxtIKthoK2p6iMn1Vsz7GWZra', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiTXpoTEVsZUdhN0VxbUljWERCNHFkbkVZZlNrNUQ0QW1hRnBtTWV4SCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9ib29rcyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1776326053);
+	('4a2ahCWomf46xTZCAzHD9RBtJgyMDb2EL4nf3VAv', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiZ1VPRUJJZVpQUXRsUm9wSUE2UVkydllIeGpFYTlYQUVwSnlCTEV1NCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZGQtaWRzaXN3YS1jb2x1bW4iO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19', 1776699362),
+	('goYJaFoRLaMPNWxEOI4APawMxTS3p4Ldoz5Q78zV', 3, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36 Edg/147.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiTHpMcUlac3Q3Nnl3NnliTWpWRWVNUkF1TnVUaEJFQjdYNXIyY3paRyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mzk6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9ib3Jyb3dpbmctcmV0dXJucyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjM7fQ==', 1776702659),
+	('tqOyOWa82w68h3ZLjrV8uic658zFULhcGpkUzgh4', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiZUZwMHo0NU43Rm1zRXl3N1FPM2hRdDFxcWZCTDVTb0dVV2oxVWFiWiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJuZXciO2E6MDp7fXM6Mzoib2xkIjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9tZW1iZXJzL2NyZWF0ZSI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1776697062);
 
 -- Dumping data for table db_p4derriel.siswa: ~0 rows (approximately)
+INSERT INTO `siswa` (`id`, `identity_number`, `name`, `email`, `phone`, `address`, `birth_date`, `gender`, `join_date`, `status`, `created_at`, `updated_at`, `class_room_id`, `nis`, `id_siswa`) VALUES
+	(1, NULL, 'febrian', 'febrian@example.com', '680070780709789', 'saddasfs', NULL, NULL, '2026-04-20', 'active', '2026-04-20 08:35:37', '2026-04-20 08:35:37', 1, '2324102577', NULL);
 
--- Dumping data for table db_p4derriel.users: ~3 rows (approximately)
+-- Dumping data for table db_p4derriel.users: ~0 rows (approximately)
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `photo`, `remember_token`, `created_at`, `updated_at`, `role_id`, `last_seen`) VALUES
-	(1, 'Admin Perpustakaan', 'admin@ukk2026.com', NULL, '$2y$12$RqqjaCSwRLVEI/HhR/rPzOvJ5saq25DgFqYTLZD8WEASNp6Opb1uW', NULL, NULL, '2026-04-14 21:39:40', '2026-04-16 00:54:13', 1, '2026-04-16 00:54:13'),
+	(1, 'Admin Perpustakaan', 'admin@ukk2026.com', NULL, '$2y$12$RqqjaCSwRLVEI/HhR/rPzOvJ5saq25DgFqYTLZD8WEASNp6Opb1uW', NULL, NULL, '2026-04-14 21:39:40', '2026-04-20 09:17:50', 1, '2026-04-20 09:17:50'),
 	(2, 'Pengguna Perpustakaan', 'pengguna@ukk2026.com', NULL, '$2y$12$EDj1vvaEuULmL0wH0cloI.HctPpxvopSjKDewdoGZhFjyiDidSUHK', 'users/17KGZWPQRP8vsutn1Mb6OSBbyWt9nDJxwzyH2Wdj.jpg', NULL, '2026-04-14 21:40:45', '2026-04-16 00:54:27', 3, '2026-04-16 00:54:27'),
-	(3, 'Petugas Perpustakaan', 'petugas@perpustakaan.com', NULL, '$2y$12$ypl2rd0tWUyl6CpEGZoZKupVa0P10qtfmiF7jcd8AGnLPHl2WjrBO', NULL, NULL, '2026-04-14 23:02:27', '2026-04-15 00:18:16', 2, '2026-04-15 00:18:16');
+	(3, 'Petugas Perpustakaan', 'petugas@perpustakaan.com', NULL, '$2y$12$ypl2rd0tWUyl6CpEGZoZKupVa0P10qtfmiF7jcd8AGnLPHl2WjrBO', NULL, NULL, '2026-04-14 23:02:27', '2026-04-20 09:30:59', 2, '2026-04-20 09:30:59');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

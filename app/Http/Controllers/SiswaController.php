@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Siswa;
+use App\Models\ClassRoom;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class SiswaController extends Controller
 {
     public function index()
     {
-        $siswa = Siswa::all();
+        $siswa = Siswa::with('classRoom')->get();
         $users = \App\Models\User::all();
         $roles = \App\Models\Role::all();
 
@@ -23,16 +25,22 @@ class SiswaController extends Controller
 
     public function create()
     {
+        $classes = ClassRoom::orderBy('name')->get();
+
         return view('pages.members.create.index', [
             'title' => 'Tambah Siswa',
+            'classes' => $classes,
         ]);
     }
 
     public function edit(Siswa $siswa)
     {
+        $classes = ClassRoom::orderBy('name')->get();
+
         return view('pages.members.edit.index', [
             'title' => 'Edit Siswa',
             'siswa' => $siswa,
+            'classes' => $classes,
         ]);
     }
 
@@ -43,15 +51,22 @@ class SiswaController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:siswa,email'],
             'phone' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string', 'max:1000'],
-            'kelas' => ['nullable', 'string', 'max:10'],
+            'class_room_id' => ['nullable', 'exists:class_rooms,id'],
             'jurusan' => ['nullable', 'string', 'max:50'],
-            'nis' => ['nullable', 'string', 'max:50'],
         ]);
 
-        // Generate ID siswa
-        $validated['id_siswa'] = 'SIS' . str_pad((Siswa::count() + 1), 3, '0', STR_PAD_LEFT);
+// Generate ID siswa
+        if (Schema::hasColumn('siswa', 'id_siswa')) {
+            $validated['id_siswa'] = 'SIS' . str_pad((Siswa::count() + 1), 3, '0', STR_PAD_LEFT);
+        }
+        
         $validated['join_date'] = now()->toDateString();
         $validated['status'] = 'active';
+
+        // Add nis if provided and column exists
+        if ($request->filled('nis') && Schema::hasColumn('siswa', 'nis')) {
+            $validated['nis'] = $request->nis;
+        }
 
         Siswa::create($validated);
 
@@ -65,10 +80,14 @@ class SiswaController extends Controller
             'email' => ['required', 'email', 'max:255', 'unique:siswa,email,' . $siswa->id],
             'phone' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string', 'max:1000'],
-            'kelas' => ['nullable', 'string', 'max:10'],
+            'class_room_id' => ['nullable', 'exists:class_rooms,id'],
             'jurusan' => ['nullable', 'string', 'max:50'],
-            'nis' => ['nullable', 'string', 'max:50'],
         ]);
+
+        // Add nis if provided and column exists
+        if ($request->filled('nis') && Schema::hasColumn('siswa', 'nis')) {
+            $validated['nis'] = $request->nis;
+        }
 
         $siswa->update($validated);
 
